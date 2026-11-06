@@ -331,3 +331,20 @@ html[data-theme=dark] .thm .moon {
 .brand-logo {
     transform: translateY(-2px);
 }
+
+#zw,
+.zw,
+.mb {
+    will-change: auto !important;
+    backface-visibility: visible !important;
+}
+
+.bd path,
+#lgasvg path {
+    vector-effect: non-scaling-stroke;
+}
+
+#mcv {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
