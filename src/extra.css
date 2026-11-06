@@ -348,3 +348,32 @@ html[data-theme=dark] .thm .moon {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
 }
+
+@media (max-width: 900px) {
+    .mapv {
+        --mapH: 42vh;
+    }
+
+    @supports (height: 1dvh) {
+        .mapv {
+            --mapH: 42dvh;
+        }
+    }
+
+    /* the map stays pinned at the top of the screen */
+    .mp {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        height: var(--mapH);
+    }
+
+    /* the back button pins directly under the map */
+    #bkbar {
+        position: sticky;
+        top: var(--mapH);
+        z-index: 15;
+        background: var(--bg, #fff);
+        padding: 4px 0;
+    }
+}

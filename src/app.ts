@@ -288,7 +288,7 @@ function main(): void {
 
   /* views */
   const V: Record<string, () => string> = {};
-  V.map = () => `<section class="mapv${hasLga() ? '' : ' nolga'}"><div class="mp" id="mp"><div class="zw" id="zw"><div class="mb" id="mb" role="group" aria-label="Map of Nigeria"><canvas id="mcv" width="736" height="654"></canvas><svg class="bd" viewBox="0 0 736 654" aria-hidden="true"><path class="b1" d="${BORDERS}"/><path class="b0" d="${OUTLINE}"/></svg><svg id="lgasvg" viewBox="0 0 736 654"></svg></div></div><button class="allst" id="allst" aria-label="Show the full map" title="Show the full map">${ic('fit', 18, '#181818')}Full map</button><div class="tip" id="tip"></div><div class="zoom"><button data-z="1" aria-label="Zoom in">${ic('add')}</button><hr><button data-z="-1" aria-label="Zoom out">${ic('rem')}</button></div></div><aside class="rp"><div id="ph"></div><div class="row ctl" id="ctl"><div class="seg" id="seg"><button class="bk" id="bk" aria-label="Exit search">${ic('left')}</button><select class="sel s" id="st" aria-label="State"></select><select class="sel s" id="lga" aria-label="Local Government Area"></select></div><label class="sbx" id="sbx"><button class="sb1" id="sbtn" aria-label="Search">${ic('search')}</button><input id="q" autocomplete="off" aria-label="Search"><button class="qx" id="qx" aria-label="Clear search">${ic('x', 16)}</button></label></div><div id="pb"></div></aside></section>`;
+  V.map = () => `<section class="mapv${hasLga() ? '' : ' nolga'}"><div class="mp" id="mp"><div class="zw" id="zw"><div class="mb" id="mb" role="group" aria-label="Map of Nigeria"><canvas id="mcv" width="736" height="654"></canvas><svg class="bd" viewBox="0 0 736 654" aria-hidden="true"><path class="b1" d="${BORDERS}"/><path class="b0" d="${OUTLINE}"/></svg><svg id="lgasvg" viewBox="0 0 736 654"></svg></div></div><button class="allst" id="allst" aria-label="Show the full map" title="Show the full map">${ic('fit', 18, '#181818')}Full map</button><div class="tip" id="tip"></div><div class="zoom"><button data-z="1" aria-label="Zoom in">${ic('add')}</button><hr><button data-z="-1" aria-label="Zoom out">${ic('rem')}</button></div></div><aside class="rp"><div id="bkbar"></div><div id="ph"></div><div class="row ctl" id="ctl"><div class="seg" id="seg"><button class="bk" id="bk" aria-label="Exit search">${ic('left')}</button><select class="sel s" id="st" aria-label="State"></select><select class="sel s" id="lga" aria-label="Local Government Area"></select></div><label class="sbx" id="sbx"><button class="sb1" id="sbtn" aria-label="Search">${ic('search')}</button><input id="q" autocomplete="off" aria-label="Search"><button class="qx" id="qx" aria-label="Clear search">${ic('x', 16)}</button></label></div><div id="pb"></div></aside></section>`;
 
   function tip(x?: number, y?: number) {
     const t = $('#tip'); if (!t) return; if (x == null) sync();
@@ -300,7 +300,13 @@ function main(): void {
       : `<h4 class="md ell">${nm}</h4><p class="xs sub" style="padding:4px 16px 12px">No result data for this area</p>`;
     if (mob900.matches) { t.style.left = ''; t.style.top = '' } else if (x != null && y != null) { const m = $('#mp').getBoundingClientRect(); t.style.left = Math.max(12, Math.min(m.width - 354, x - m.left + 16)) + 'px'; t.style.top = Math.max(12, Math.min(m.height - 170, y - m.top + 16)) + 'px' } else { t.style.display = 'none' }
   }
-  function hdr() { $('#ph').innerHTML = S.view === 'nat' ? `<div class="in"><h2 class="t20">${S.y} General Elections</h2>${legend()}</div>` : `<div class="in"><button class="back sm" id="back">${ic('back', 20, '#adadad')}Go back</button><h2 class="ttl" style="margin-top:12px">${S.st.replace(' State', '')}</h2><p class="r14 sub" style="margin-top:12px">${fmt(sum(votes(S.st, 1)))} total votes · ${S.y}</p></div><div class="in">${legend()}</div>`; $('#back')?.addEventListener('click', reset) }
+  function hdr() {
+    $('#bkbar').innerHTML = S.view === 'nat' ? '' : `<div class="in"><button class="back sm" id="back">${ic('back', 20, '#adadad')}Go back</button></div>`;
+    $('#ph').innerHTML = S.view === 'nat'
+      ? `<div class="in"><h2 class="t20">${S.y} General Elections</h2>${legend()}</div>`
+      : `<div class="in"><h2 class="ttl" style="margin-top:12px">${S.st.replace(' State', '')}</h2><p class="r14 sub" style="margin-top:12px">${fmt(sum(votes(S.st, 1)))} total votes · ${S.y}</p></div><div class="in">${legend()}</div>`;
+    $('#back')?.addEventListener('click', reset);
+  }
   function ctl() {
     const g = $('#seg'), st = $('#st'), lg = $('#lga'), L = hasLga();
     g.classList.toggle('has', !!S.st && L); g.classList.toggle('srch', !!S.srch); g.classList.toggle('nolga', !L); $('#sbx').classList.toggle('srch', !!S.srch);

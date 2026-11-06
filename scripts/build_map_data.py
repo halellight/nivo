@@ -57,16 +57,17 @@ country = unary_union(list(states.values()))
 OUTLINE = path([Polygon(p.exterior) for p in polys(country)])         # Nigeria outline
 BORDERS = path([p for k in KEYS for p in polys(states[k])])           # all state borders
 
-M = 2  # mask scale: 2 -> 1472x1308. 3 is sharper but 2.25x heavier to redraw on phones.
-img = Image.new("L", (W * M, H * M), 0)   # grayscale: pixel value = 1-based index into KEYS
+S = 2  # state hit-mask, red channel = 1-based index into KEYS
+img = Image.new("L", (W * S, H * S), 0)
 d = ImageDraw.Draw(img)
 for i, k in enumerate(KEYS, 1):
     for p in polys(states[k]):
-        d.polygon([(x * M, y * M) for x, y in p.exterior.coords], fill=i, outline=i)
+        d.polygon([(x * S, y * S) for x, y in p.exterior.coords], fill=i, outline=i)
         for r in p.interiors:
-            d.polygon([(x * M, y * M) for x, y in r.coords], fill=0)
+            d.polygon([(x * S, y * S) for x, y in r.coords], fill=0)
+a = np.array(img.resize((W, H), Image.NEAREST))
 buf = io.BytesIO()
-img.save(buf, "PNG", optimize=True)
+Image.fromarray(np.stack([a, a, a], 2)).save(buf, "PNG", optimize=True)
 MASK = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 j = lambda v: json.dumps(v, ensure_ascii=False, separators=(",", ":"))
