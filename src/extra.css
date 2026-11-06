@@ -354,9 +354,9 @@ html[data-theme=dark] .thm .moon {
     }
 
     .brand-logo {
-        height: 24px;
+        height: 28px;
         transform: none;
-        margin: 0;
+        margin: 4px;
     }
 }
 
@@ -396,7 +396,7 @@ html[data-theme=dark] .thm .moon {
         z-index: 20;
         height: auto;
         aspect-ratio: 736 / 654;
-        width: min(100%, calc(40dvh * 1.125));
+        width: 39vh;
         /* raise 40 for a bigger map, lower it for a smaller one */
         margin-inline: auto;
     }
