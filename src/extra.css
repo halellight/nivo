@@ -378,10 +378,19 @@ html[data-theme=dark] .thm .moon {
     }
 }
 
-#mcv {
-    display: block;
+
+
+.mb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 736 / 654;
+}
+
+#mcv,
+.bd,
+#lgasvg {
+    position: absolute;
+    inset: 0;
     width: 100% !important;
-    height: auto !important;
-    /* 1472x1308 has the same ratio as 736x654, so the height follows the width */
-    max-width: none;
+    height: 100% !important;
 }
