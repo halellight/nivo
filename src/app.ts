@@ -4,7 +4,7 @@ import STYLE from './styles.css';
 import EXTRA from './extra.css';
 import SHELL from './shell.html';
 import { OUTLINE, BORDERS, MASK, KEYS, BB, SO, LG } from './data/map-data';
-import { LOGO, LOGO_RATIO, FAVICON } from './data/brand';
+import { LOGO, LOGO_RATIO } from './data/brand';
 
 const FONTS = "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&family=Archivo+Narrow:wght@700&display=swap";
 
@@ -112,9 +112,6 @@ export function mount(): void {
   const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = FONTS; document.head.append(l);
   for (const css of [STYLE, EXTRA]) { const s = document.createElement('style'); s.textContent = css; document.head.append(s) }
 
-  // favicon (5.png)
-  document.querySelectorAll('link[rel~="icon"]').forEach(e => e.remove());
-  const fav = document.createElement('link'); fav.rel = 'icon'; fav.type = 'image/png'; fav.href = FAVICON; document.head.append(fav);
   document.title = 'nivo – For Nigerian Voters';
 
   document.body.insertAdjacentHTML('afterbegin', SHELL);
@@ -339,7 +336,6 @@ function main(): void {
     (window as any).gtag?.('event', 'select_state', { state: st.replace(/ State$/, '') });
     S.st = st; S.lga = l; S.view = 'state'; S.all = 0; S.srch = 0; S.z = 1; S.px = S.py = 0; $('#q').value = '';
     all(); drawMap();
-    if (mob900.matches) $('#mp').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   function mapInit() {
     all();
@@ -540,15 +536,22 @@ function main(): void {
     sv.querySelectorAll<SVGPathElement>('.lp').forEach(p => { const on = p.dataset.n === S.lga; p.classList.toggle('on', on); p.style.fill = on ? col(rank(lvt(p.dataset.n!, S.st))[0][1]) : '' });
     let sc = 1, cx = 368, cy = 327; const bb = key ? BB[key] : null; if (bb) { sc = Math.min(8, Math.min(736 / (bb[2] - bb[0]), 654 / (bb[3] - bb[1])) * .75); cx = (bb[0] + bb[2]) / 2; cy = (bb[1] + bb[3]) / 2 }
     sc *= S.z; const lim = sc * 45; S.px = Math.max(-lim, Math.min(lim, S.px)); S.py = Math.max(-lim, Math.min(lim, S.py)); if (S.z <= 1 && !key) S.px = S.py = 0;
-    zw.style.transform = `translate(${(368 - cx * sc) / 7.36 + S.px}%,${(327 - cy * sc) / 6.54 + S.py}%) scale(${sc})`; $('#mp').style.touchAction = S.z > 1 ? 'none' : ''; zw.style.setProperty('--k', String(1 / sc));
+    zw.style.transform = `translate(${(368 - cx * sc) / 7.36 + S.px}%,${(327 - cy * sc) / 6.54 + S.py}%) scale(${sc})`; $('#mp').style.touchAction = (S.z > 1 || key) ? 'none' : ''; zw.style.setProperty('--k', String(1 / sc));
     const ra = $('#allst'); if (ra) ra.disabled = S.view === 'nat' && S.z === 1 && !S.px && !S.py
+    document.documentElement.style.setProperty('--mapH', $('#mp').offsetHeight + 'px');
   }
   function bindMap() {
     const mp = $('#mp') as HTMLElement; let drag: { x: number; y: number; px: number; py: number; m: boolean } | null = null, moved = false;
-    mp.onpointerdown = (e: PointerEvent) => { if (S.z > 1 && !(e.target as HTMLElement).closest('.allst,.zoom')) { drag = { x: e.clientX, y: e.clientY, px: S.px, py: S.py, m: false }; mp.setPointerCapture?.(e.pointerId) } };
-    mp.onpointerup = mp.onpointercancel = () => { if (drag) { moved = drag.m; drag = null; $('#zw').style.transition = '' } };
+    const canPan = () => S.z > 1 || S.view === 'state';
+    mp.onpointerdown = (e: PointerEvent) => {
+      if (canPan() && !(e.target as HTMLElement).closest('.allst,.zoom')) drag = { x: e.clientX, y: e.clientY, px: S.px, py: S.py, m: false };
+    };
     mp.onpointermove = (e: PointerEvent) => {
-      if (drag) { const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) drag.m = true; if (drag.m) { const zw = $('#zw'); zw.style.transition = 'none'; S.px = drag.px + dx / zw.offsetWidth * 100; S.py = drag.py + dy / zw.offsetHeight * 100; sync(); return } }
+      if (drag) {
+        const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+        if (!drag.m && Math.abs(dx) + Math.abs(dy) > 6) { drag.m = true; mp.setPointerCapture?.(e.pointerId) }  // capture only once it's a real drag, so taps still hit the LGA
+        if (drag.m) { const zw = $('#zw'); zw.style.transition = 'none'; S.px = drag.px + dx / zw.offsetWidth * 100; S.py = drag.py + dy / zw.offsetHeight * 100; sync(); return }
+      }
       const t = e.target as HTMLElement; let h: Hov = null; if (t.classList.contains('lp')) h = { k: t.dataset.n!, st: false, s: S.st }; else if (t.id === 'mcv') { const l = labelAt(e); if (l) h = { k: KEYS[l - 1], st: true, s: '' } }
       if (h?.k !== HOV?.k || h?.st !== HOV?.st) { HOV = h; drawMap() } tip(e.clientX, e.clientY)
     };

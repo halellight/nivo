@@ -1434,22 +1434,8 @@ body {
         flex-wrap: wrap;
         justify-content: center;
         align-items: center;
-        gap: 4px;
+        gap: 2px;
         padding: 8px 12px;
-    }
-
-    .brand {
-        flex: 0 0 100%;
-        display: flex;
-        justify-content: center;
-        transform: none;
-    }
-
-    .brand-logo {
-        height: 24px;
-        transform: none;
-        padding: 7px;
-        padding-bottom: 0px;
     }
 
     .bar {
@@ -1482,8 +1468,8 @@ body {
     }
 
     .hd .wrap {
-        row-gap: 6px;
-        padding: 6px 12px 8px;
+        row-gap: 2px;
+        padding: 2px 12px 8px;
     }
 
     .brand {

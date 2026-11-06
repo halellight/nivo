@@ -320,18 +320,47 @@ html[data-theme=dark] .thm .moon {
     }
 }
 
-/* Expand the header to push the logo left and add space before the tabs */
-.hd .wrap {
-    max-width: 1400px !important;
-    gap: 48px !important;
+/* ---------- Header ---------- */
+@media (min-width: 761px) {
+    .hd .wrap {
+        max-width: 1400px !important;
+        gap: 48px !important;
+    }
+
+    .brand-logo {
+        transform: translateY(-2px);
+    }
+
+    /* only the logo, not .brand too */
 }
 
-/* Nudge the logo slightly up so it aligns perfectly with the center of the tabs */
-.brand,
-.brand-logo {
-    transform: translateY(-2px);
+@media (max-width: 760px) {
+    .hd .wrap {
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+
+    .brand {
+        flex: 0 0 100%;
+        display: flex;
+        justify-content: center;
+        transform: none;
+        margin: 0;
+        padding: 0;
+        line-height: 0;
+    }
+
+    .brand-logo {
+        height: 24px;
+        transform: none;
+        margin: 0;
+    }
 }
 
+/* ---------- Map rendering ---------- */
 #zw,
 .zw,
 .mb {
@@ -343,42 +372,6 @@ html[data-theme=dark] .thm .moon {
 #lgasvg path {
     vector-effect: non-scaling-stroke;
 }
-
-#mcv {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
-
-@media (max-width: 900px) {
-    .mapv {
-        --mapH: 42vh;
-    }
-
-    @supports (height: 1dvh) {
-        .mapv {
-            --mapH: 42dvh;
-        }
-    }
-
-    /* the map stays pinned at the top of the screen */
-    .mp {
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        height: var(--mapH);
-    }
-
-    /* the back button pins directly under the map */
-    #bkbar {
-        position: sticky;
-        top: var(--mapH);
-        z-index: 15;
-        background: var(--bg, #fff);
-        padding: 4px 0;
-    }
-}
-
-
 
 .mb {
     position: relative;
@@ -393,4 +386,31 @@ html[data-theme=dark] .thm .moon {
     inset: 0;
     width: 100% !important;
     height: 100% !important;
+}
+
+/* ---------- Mobile / tablet: pinned map + pinned "Go back" ---------- */
+@media (max-width: 900px) {
+    .mp {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        height: auto;
+        aspect-ratio: 736 / 654;
+        width: min(100%, calc(40dvh * 1.125));
+        /* raise 40 for a bigger map, lower it for a smaller one */
+        margin-inline: auto;
+    }
+
+    #bkbar {
+        position: sticky;
+        top: calc(var(--mapH, 300px) - 1px);
+        /* set from the real map height in sync() */
+        z-index: 15;
+        background: #fff;
+        padding: 4px 0;
+    }
+
+    html[data-theme=dark] #bkbar {
+        background: var(--bg-d);
+    }
 }
