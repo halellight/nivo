@@ -497,16 +497,38 @@ function main(): void {
   /* ---- interactive map: state hit-mask (canvas) + state/outline borders + per-state LGA shapes ---- */
   type Hov = { k: string; st: boolean; s: string } | null;
   let HOV: Hov = null, LAB: Uint8Array | null = null, drawn = '';
+  let MW = 736, MH = 654;                       // real mask size, read from the PNG
   const maskImg = new Image();
-  maskImg.onload = () => { const c = document.createElement('canvas'); c.width = 736; c.height = 654; const x = c.getContext('2d')!; x.drawImage(maskImg, 0, 0); const d = x.getImageData(0, 0, 736, 654).data; LAB = new Uint8Array(736 * 654); for (let k = 0; k < LAB.length; k++)LAB[k] = d[k * 4]; drawMap() };
+  maskImg.onload = () => {
+    MW = maskImg.naturalWidth; MH = maskImg.naturalHeight;
+    const c = document.createElement('canvas'); c.width = MW; c.height = MH;
+    const x = c.getContext('2d', { willReadFrequently: true })!;
+    x.drawImage(maskImg, 0, 0);
+    const d = x.getImageData(0, 0, MW, MH).data;
+    LAB = new Uint8Array(MW * MH);
+    for (let k = 0; k < LAB.length; k++) LAB[k] = d[k * 4];
+    drawMap();
+  };
   maskImg.src = MASK;
-  const labelAt = (e: MouseEvent): number => { const r = $('#mcv').getBoundingClientRect(), px = Math.floor((e.clientX - r.left) / r.width * 736), py = Math.floor((e.clientY - r.top) / r.height * 654); return !LAB || px < 0 || py < 0 || px > 735 || py > 653 ? 0 : LAB[py * 736 + px] };
-  function drawMap() {
+  const labelAt = (e: MouseEvent): number => {
+    const r = $('#mcv').getBoundingClientRect(),
+      px = Math.floor((e.clientX - r.left) / r.width * MW),
+      py = Math.floor((e.clientY - r.top) / r.height * MH);
+    return !LAB || px < 0 || py < 0 || px >= MW || py >= MH ? 0 : LAB[py * MW + px];
+  }; function drawMap() {
     const cv = $('#mcv') as HTMLCanvasElement | null; if (!cv || !LAB) return;
-    const x = cv.getContext('2d')!, im = x.createImageData(736, 654), o = im.data, hv = HOV && HOV.st ? KEYS.indexOf(HOV.k) + 1 : 0, sl = S.view === 'state' ? KEYS.indexOf(S.st) + 1 : 0;
-    const [base, hov, dim, dimHov] = isDark() ? [46, 78, 30, 44] : [228, 200, 240, 226];
-    for (let k = 0; k < LAB.length; k++) { if (!LAB[k]) continue; const d = sl > 0 && LAB[k] !== sl, c = LAB[k] === hv ? (d ? dimHov : hov) : d ? dim : base; o[k * 4] = o[k * 4 + 1] = o[k * 4 + 2] = c; o[k * 4 + 3] = 255 }
-    x.putImageData(im, 0, 0)
+    if (cv.width !== MW || cv.height !== MH) { cv.width = MW; cv.height = MH }
+    cv.style.width = '100%'; cv.style.height = 'auto';
+    const x = cv.getContext('2d')!, im = x.createImageData(MW, MH), px = new Uint32Array(im.data.buffer),
+      hv = HOV && HOV.st ? KEYS.indexOf(HOV.k) + 1 : 0, sl = S.view === 'state' ? KEYS.indexOf(S.st) + 1 : 0;
+    const [base, hov, dim, dimHov] = (isDark() ? [46, 78, 30, 44] : [228, 200, 240, 226])
+      .map(c => (0xff000000 | c << 16 | c << 8 | c) >>> 0);
+    for (let k = 0; k < LAB.length; k++) {
+      const l = LAB[k]; if (!l) continue;
+      const d = sl > 0 && l !== sl;
+      px[k] = l === hv ? (d ? dimHov : hov) : d ? dim : base;
+    }
+    x.putImageData(im, 0, 0);
   }
   function sync() {
     const sv = $('#lgasvg') as SVGElement | null, zw = $('#zw') as HTMLElement | null; if (!sv || !zw) return;

@@ -377,3 +377,11 @@ html[data-theme=dark] .thm .moon {
         padding: 4px 0;
     }
 }
+
+#mcv {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+    /* 1472x1308 has the same ratio as 736x654, so the height follows the width */
+    max-width: none;
+}
