@@ -329,10 +329,20 @@ function main(): void {
   }
   const all = () => { hdr(); ctl(); body(); tip() };
   const reset = () => { S.st = ''; S.lga = ''; S.view = 'nat'; S.srch = 0; S.all = 0; S.z = 1; S.px = S.py = 0; HOV = null; $('#q').value = ''; all(); drawMap(); sync() };
-  const pick = (st: string, l: string) => { S.st = st; S.lga = l; S.view = 'state'; S.all = 0; S.srch = 0; S.z = 1; S.px = S.py = 0; $('#q').value = ''; all(); drawMap(); if (mob900.matches) $('#mp').scrollIntoView({ behavior: 'smooth', block: 'start' }) };
+  const pick = (st: string, l: string) => {
+    (window as any).gtag?.('event', 'select_state', { state: st.replace(/ State$/, '') });
+    S.st = st; S.lga = l; S.view = 'state'; S.all = 0; S.srch = 0; S.z = 1; S.px = S.py = 0; $('#q').value = '';
+    all(); drawMap();
+    if (mob900.matches) $('#mp').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
   function mapInit() {
     all();
-    $('#st').onchange = (e: any) => { S.st = e.target.value; S.lga = ''; S.view = 'state'; S.all = 0; all(); drawMap() }; $('#lga').onchange = (e: any) => { S.lga = e.target.value; body(); tip() };
+    $('#st').onchange = (e: any) => {
+      (window as any).gtag?.('event', 'select_state', { state: e.target.value.replace(/ State$/, '') });
+      S.st = e.target.value; S.lga = ''; S.view = 'state'; S.all = 0;
+      all(); drawMap();
+    };
+    $('#lga').onchange = (e: any) => { S.lga = e.target.value; body(); tip() };
     $('#sbtn').onclick = () => { S.srch = 1; ctl(); body(); $('#q').focus() }; $('#bk').onclick = () => { S.srch = 0; $('#q').value = ''; ctl(); body() };
     $('#q').oninput = body; $('#q').onkeydown = (e: any) => { if (e.key === 'Escape') $('#bk').click(); if (e.key === 'Enter') $('#pb .res')?.click() };
     $('#qx').onclick = () => { $('#q').value = ''; body(); $('#q').focus() }; $('#allst').onclick = reset
@@ -530,8 +540,19 @@ function main(): void {
     const old = $('#year'); old.style.display = 'none'; old.innerHTML = YEARS.map(y => `<option>${y}</option>`).join('');
     let seg = $('#yseg'); if (!seg) { seg = document.createElement('div'); seg.id = 'yseg'; seg.className = 'yseg'; seg.setAttribute('role', 'radiogroup'); seg.setAttribute('aria-label', 'Election year'); old.after(seg) }
     seg.innerHTML = YEARS.map(y => `<button type="button" role="radio" data-y="${y}">${y}</button>`).join('') + '<i class="thumb" aria-hidden="true"></i>';
-    seg.onclick = (e: any) => { const b = e.target.closest('button'); if (b && b.dataset.y !== S.y) { setYear(b.dataset.y); chrome(); swap(page) } };
-    old.onchange = (e: any) => { setYear(e.target.value); chrome(); swap(page) };
+    seg.onclick = (e: any) => {
+      const b = e.target.closest('button');
+      if (b && b.dataset.y !== S.y) {
+        setYear(b.dataset.y);
+        (window as any).gtag?.('event', 'change_year', { year: b.dataset.y });
+        chrome(); swap(page);
+      }
+    };
+    old.onchange = (e: any) => {
+      setYear(e.target.value);
+      (window as any).gtag?.('event', 'change_year', { year: e.target.value });
+      chrome(); swap(page);
+    };
   }
   function buildTheme() {
     // Finds your new HTML button, or creates a fallback

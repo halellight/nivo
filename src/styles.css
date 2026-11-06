@@ -1432,14 +1432,22 @@ body {
 @media (max-width: 760px) {
     .hd .wrap {
         flex-wrap: wrap;
-        gap: 12px;
-        padding-top: 12px;
-        padding-bottom: 12px;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
     }
 
-    .brand .logo {
-        height: 34px;
+    .brand {
+        flex: 0 0 100%;
+        display: flex;
+        justify-content: center;
+        transform: none;
+    }
 
+    .brand-logo {
+        height: 24px;
+        transform: none;
     }
 
     .bar {
