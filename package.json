@@ -4,7 +4,7 @@
   "scripts": {
     "typecheck": "tsc",
     "dev": "esbuild src/main.ts --bundle --target=es2020 --loader:.css=text --loader:.html=text --outfile=dist/nivo.js --servedir=. --serve=5173",
-    "build": "tsc && vite build",
+    "build": "tsc && esbuild src/main.ts --bundle --minify --target=es2020 --loader:.css=text --loader:.html=text --outfile=dist/nivo.js && node scripts/copy-static.mjs",
     "map-data": "python3 scripts/build_map_data.py data/nga_admin2.geojson src/data/map-data.ts"
   },
   "devDependencies": {
