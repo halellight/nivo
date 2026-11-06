@@ -304,7 +304,7 @@ function main(): void {
     $('#bkbar').innerHTML = S.view === 'nat' ? '' : `<div class="in"><button class="back sm" id="back">${ic('back', 20, '#adadad')}Go back</button></div>`;
     $('#ph').innerHTML = S.view === 'nat'
       ? `<div class="in"><h2 class="t20">${S.y} General Elections</h2>${legend()}</div>`
-      : `<div class="in"><h2 class="ttl" style="margin-top:12px">${S.st.replace(' State', '')}</h2><p class="r14 sub" style="margin-top:12px">${fmt(sum(votes(S.st, 1)))} total votes · ${S.y}</p></div><div class="in">${legend()}</div>`;
+      : `<div class="in"><h2 class="ttl" style="margin-top:8px">${S.st.replace(' State', '')}</h2><p class="r14 sub" style="margin-top:12px">${fmt(sum(votes(S.st, 1)))} total votes · ${S.y}</p></div><div class="in">${legend()}</div>`;
     $('#back')?.addEventListener('click', reset);
   }
   function ctl() {

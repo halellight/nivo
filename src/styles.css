@@ -1434,7 +1434,7 @@ body {
         flex-wrap: wrap;
         justify-content: center;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
         padding: 8px 12px;
     }
 
@@ -1448,6 +1448,8 @@ body {
     .brand-logo {
         height: 24px;
         transform: none;
+        padding: 7px;
+        padding-bottom: 0px;
     }
 
     .bar {
