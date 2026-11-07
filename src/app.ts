@@ -108,8 +108,8 @@ function footerHtml(): string {
   const now = new Date().getFullYear(), yrs = now > CREATED ? `${CREATED}–${now}` : `${CREATED}`;
   return `<footer class="ft"><div class="ft-in">
     <p class="ft-c">© ${yrs} nivo. All rights reserved.</p>
-    <nav class="ft-n" aria-label="Footer"><a href="#about">About</a><a href="#method">Methodology</a></nav>
-    <p class="ft-b">Designed &amp; built by <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer">Praise Ibe</a></p>
+    <nav class="ft-n" aria-label="Footer"><a href="#about">About</a></nav>
+    <p class="ft-b">Built &amp; designed by <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer">Praise</a> &amp; <a href="https://taiwoariyo.framer.website" target="_blank" rel="noopener noreferrer">Taiwo</a></p>
   </div></footer>`;
 }
 export function mount(): void {
@@ -470,7 +470,7 @@ function main(): void {
         </div>
         <div class="note sm" style="margin-top: 24px;">
           ${layers}
-          <p><strong>Methodological Note:</strong> 2027 projections are structurally derived from historical data. Voter registration extrapolates the ~13.5% growth observed between the 2019 and 2023 cycles. The 5 "States to watch" are calculated dynamically based on the tightest voting margins from the selected historical year.</p>
+          <p><strong>Note:</strong> 2027 projections are derived from historical data. Voter registration extrapolates the ~13.5% growth observed between the 2019 and 2023 cycles. The 5 "States to watch" are calculated dynamically based on the tightest voting margins from the selected election cycle.</p>
         </div>
       </div>
     `;
@@ -491,16 +491,16 @@ function main(): void {
       tile = (t: string, d: string, href: string) => `<a class="card ab-tile" href="${href}"><p class="card-t">${t}</p><p class="r14 sub">${d}</p></a>`,
       today = new Date().toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' });
     return `<div class="page">${ph('About nivo')}<div class="pad" style="display:flex;flex-direction:column;gap:var(--s24);max-width:720px">
-      ${p('nivo is a free data platform for Nigeria’s presidential elections. It turns the results into something anyone can explore – from the national picture down to a single local government area – without needing a spreadsheet or a statistics degree.', 'font-size:16px;line-height:24px')}
+      ${p('nivo is a free data platform for Nigeria’s presidential elections. It turns the results into something anyone can explore without needing a spreadsheet or a statistics degree.', 'font-size:16px;line-height:24px')}
       ${sec('What you can do here', `<div class="cards" style="padding:0;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
         ${tile('Explore the map', 'Click any state to see who won it, then drill down to its local governments.', '#map')}
         ${tile('National dashboard', 'Votes by party, how many states or LGAs each party won, and voter turnout.', '#dashboard')}
         ${tile('Compare areas', 'Put two LGAs (or two states) side by side on every metric.', '#compare')}
         ${tile('Political insights', 'The closest and widest contests, and the states to watch.', '#insights')}</div>`)}
       ${sec('Where the numbers come from', p('Results are based on official Independent National Electoral Commission (INEC) declarations: LGA-level collation figures for 2023, and declared state totals for 2015 and 2019. A few figures – such as registered voters or the male/female split for a single area – are estimates and are labelled as such. The full detail is on the <a href="#method">Methodology</a> page.'))}
-      ${sec('Using nivo in your reporting', p('Please link back and check anything you publish against the official INEC declaration, which is always the authoritative record. A suggested citation:', 'margin-bottom:8px') + `<div class="note sm"><p>nivo – For Nigerian Voters, ${location.host}. Data: INEC. Accessed ${today}.</p></div>`)}
+      ${sec('Using nivo in your reporting', p('Please link back and check anything you publish against the official INEC declaration, which is always the official record. A suggested citation:', 'margin-bottom:8px') + `<div class="note sm"><p>nivo – For Nigerian Voters, ${location.host}. Data: INEC. Accessed ${today}.</p></div>`)}
       ${sec('Spotted a mistake?', p('Every figure traces back to an INEC result, so if something looks wrong we want to fix it. Check the <a href="#method">Methodology</a> first, then get in touch via <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer">praiseibe.com</a>.'))}
-      ${sec('Built by', p('nivo is designed and built by <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer">Praise Ibe</a>. It is an independent project and not an official INEC publication.'))}
+      ${sec('Note', p('nivo is an independent project and not an official INEC publication.'))}
     </div></div>`;
   };
 
