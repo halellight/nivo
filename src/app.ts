@@ -103,7 +103,15 @@ const STATE_RESULTS_2019: Record<string, StateResult> = {
   "Zamfara": { pdp: 125423, apc: 438682, nnpp: 0, lp: 0, other: 14334, winner: "apc" },
 };
 
-
+const CREATED = 2026;                                   // year nivo was created
+function footerHtml(): string {
+  const now = new Date().getFullYear(), yrs = now > CREATED ? `${CREATED}–${now}` : `${CREATED}`;
+  return `<footer class="ft"><div class="ft-in">
+    <p class="ft-c">© ${yrs} nivo. All rights reserved.</p>
+    <nav class="ft-n" aria-label="Footer"><a href="#about">About</a><a href="#method">Methodology</a></nav>
+    <p class="ft-b">Designed &amp; built by <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer">Praise Ibe</a></p>
+  </div></footer>`;
+}
 export function mount(): void {
   // theme first, so there is no flash of the wrong palette
   let th = ''; try { th = localStorage.getItem('nivo-theme') || '' } catch { }
@@ -115,7 +123,7 @@ export function mount(): void {
   document.title = 'nivo – For Nigerian Voters';
 
   document.body.insertAdjacentHTML('afterbegin', SHELL);
-
+  document.body.insertAdjacentHTML('beforeend', footerHtml());
   // logo (weace.png) – fills the existing logo slot if the shell has one, otherwise goes at the start of the header
   const img = `<img class="brand-logo" src="${LOGO}" width="${Math.round(28 * LOGO_RATIO)}" height="28" alt="nivo">`;
   const slot = document.querySelector('#logo, .logo, [data-logo], .brand');
@@ -477,6 +485,25 @@ function main(): void {
       </div>
     </div>`;
   };
+  V.about = () => {
+    const sec = (h: string, b: string) => `<section><h2 class="t18" style="margin-bottom:8px">${h}</h2>${b}</section>`,
+      p = (t: string, st = '') => `<p class="r14 sub" style="${st}">${t}</p>`,
+      tile = (t: string, d: string, href: string) => `<a class="card ab-tile" href="${href}"><p class="card-t">${t}</p><p class="r14 sub">${d}</p></a>`,
+      today = new Date().toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' });
+    return `<div class="page">${ph('About nivo')}<div class="pad" style="display:flex;flex-direction:column;gap:var(--s24);max-width:720px">
+      ${p('nivo is a free data platform for Nigeria’s presidential elections. It turns the results into something anyone can explore – from the national picture down to a single local government area – without needing a spreadsheet or a statistics degree.', 'font-size:16px;line-height:24px')}
+      ${sec('What you can do here', `<div class="cards" style="padding:0;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+        ${tile('Explore the map', 'Click any state to see who won it, then drill down to its local governments.', '#map')}
+        ${tile('National dashboard', 'Votes by party, how many states or LGAs each party won, and voter turnout.', '#dashboard')}
+        ${tile('Compare areas', 'Put two LGAs (or two states) side by side on every metric.', '#compare')}
+        ${tile('Political insights', 'The closest and widest contests, and the states to watch.', '#insights')}</div>`)}
+      ${sec('Where the numbers come from', p('Results are based on official Independent National Electoral Commission (INEC) declarations: LGA-level collation figures for 2023, and declared state totals for 2015 and 2019. A few figures – such as registered voters or the male/female split for a single area – are estimates and are labelled as such. The full detail is on the <a href="#method">Methodology</a> page.'))}
+      ${sec('Using nivo in your reporting', p('Please link back and check anything you publish against the official INEC declaration, which is always the authoritative record. A suggested citation:', 'margin-bottom:8px') + `<div class="note sm"><p>nivo – For Nigerian Voters, ${location.host}. Data: INEC. Accessed ${today}.</p></div>`)}
+      ${sec('Spotted a mistake?', p('Every figure traces back to an INEC result, so if something looks wrong we want to fix it. Check the <a href="#method">Methodology</a> first, then get in touch via <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer">praiseibe.com</a>.'))}
+      ${sec('Built by', p('nivo is designed and built by <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer">Praise Ibe</a>. It is an independent project and not an official INEC publication.'))}
+    </div></div>`;
+  };
+
   V.method = () => {
     const y = S.y, sec = (h: string, b: string) => `<section><h2 class="t18" style="margin-bottom:8px">${h}</h2>${b}</section>`, p = (t: string, st = '') => `<p class="r14 sub" style="${st}">${t}</p>`;
     const party = (i: number, pp: any[]) => `<div class="cl" style="--c:${pp[i].fill}"><div class="fl"><p class="md">${pp[i].k}</p><p class="xs sub">${pp[i].n} – ${pp[i].w}</p></div></div>`;
@@ -530,35 +557,70 @@ function main(): void {
   }
 
   function sync() {
-    const sv = $('#lgasvg') as SVGElement | null, zw = $('#zw') as HTMLElement | null; if (!sv || !zw) return;
+    const sv = $('#lgasvg') as SVGElement | null, zw = $('#zw') as HTMLElement | null, mp = $('#mp') as HTMLElement | null; if (!sv || !zw || !mp) return;
     const key = S.view === 'state' && LG[S.st] ? S.st : '', L = hasLga(), dk = key + (L ? '|lga' : '|st');
     if (drawn !== dk) { sv.innerHTML = key ? (L ? LG[key].map(([n, d]: any) => `<path class="lp" data-n="${n}" d="${d}"/>`).join('') : '') + `<path class="so" d="${SO[key]}"/>` : ''; drawn = dk }
     sv.querySelectorAll<SVGPathElement>('.lp').forEach(p => { const on = p.dataset.n === S.lga; p.classList.toggle('on', on); p.style.fill = on ? col(rank(lvt(p.dataset.n!, S.st))[0][1]) : '' });
-    let sc = 1, cx = 368, cy = 327; const bb = key ? BB[key] : null; if (bb) { sc = Math.min(8, Math.min(736 / (bb[2] - bb[0]), 654 / (bb[3] - bb[1])) * .75); cx = (bb[0] + bb[2]) / 2; cy = (bb[1] + bb[3]) / 2 }
-    sc *= S.z; const lim = sc * 45; S.px = Math.max(-lim, Math.min(lim, S.px)); S.py = Math.max(-lim, Math.min(lim, S.py)); if (S.z <= 1 && !key) S.px = S.py = 0;
-    zw.style.transform = `translate(${(368 - cx * sc) / 7.36 + S.px}%,${(327 - cy * sc) / 6.54 + S.py}%) scale(${sc})`; $('#mp').style.touchAction = (S.z > 1 || key) ? 'none' : ''; zw.style.setProperty('--k', String(1 / sc));
-    const ra = $('#allst'); if (ra) ra.disabled = S.view === 'nat' && S.z === 1 && !S.px && !S.py
-    document.documentElement.style.setProperty('--mapH', $('#mp').offsetHeight + 'px');
+
+    // Fit the state to the REAL size of the map box, so it fills the tall mobile box and the desktop box alike.
+    const cs = getComputedStyle(mp),
+      cw = mp.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight),
+      ch = mp.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom),
+      u = (zw.offsetWidth || 736) / 736;                       // screen px per map unit at scale 1
+    let sc = 1, cx = 368, cy = 327; const bb = key ? BB[key] : null;
+    if (bb) { sc = Math.min(14, Math.min(cw / ((bb[2] - bb[0]) * u), ch / ((bb[3] - bb[1]) * u)) * .8); cx = (bb[0] + bb[2]) / 2; cy = (bb[1] + bb[3]) / 2 }
+    sc *= S.z;
+    const lim = sc * 45; S.px = Math.max(-lim, Math.min(lim, S.px)); S.py = Math.max(-lim, Math.min(lim, S.py)); if (S.z <= 1) S.px = S.py = 0;   // pan only exists while zoomed in
+    zw.style.transform = `translate(${(368 - cx * sc) / 7.36 + S.px}%,${(327 - cy * sc) / 6.54 + S.py}%) scale(${sc})`;
+    zw.style.setProperty('--k', String(1 / sc));
+    mp.style.touchAction = S.z > 1 ? 'none' : 'pan-y';          // zoomed: the finger pans the map; otherwise the page can still scroll over the map
+    const ra = $('#allst'); if (ra) ra.disabled = S.view === 'nat' && S.z === 1 && !S.px && !S.py;
+    document.documentElement.style.setProperty('--mapH', mp.offsetHeight + 'px');
   }
+
   function bindMap() {
-    const mp = $('#mp') as HTMLElement; let drag: { x: number; y: number; px: number; py: number; m: boolean } | null = null, moved = false;
-    const canPan = () => S.z > 1 || S.view === 'state';
-    mp.onpointerdown = (e: PointerEvent) => {
-      if (canPan() && !(e.target as HTMLElement).closest('.allst,.zoom')) drag = { x: e.clientX, y: e.clientY, px: S.px, py: S.py, m: false };
+    const mp = $('#mp') as HTMLElement;
+    let drag: { id: number; x: number; y: number; px: number; py: number; m: boolean } | null = null, moved = false;
+
+    // Always release the drag – this is what was missing, and why the map "stuck" to the cursor.
+    const endDrag = () => {
+      if (!drag) return;
+      if (drag.m) { moved = true; setTimeout(() => { moved = false }, 0) }      // swallow the click that follows a real drag
+      try { mp.releasePointerCapture(drag.id) } catch { }
+      drag = null; $('#zw').style.transition = '';
     };
+
+    mp.onpointerdown = (e: PointerEvent) => {
+      if (e.button > 0 || S.z <= 1 || (e.target as HTMLElement).closest('.allst,.zoom')) return;   // only pan while zoomed in
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, px: S.px, py: S.py, m: false };
+    };
+    mp.onpointerup = mp.onpointercancel = endDrag;
+
     mp.onpointermove = (e: PointerEvent) => {
       if (drag) {
-        const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-        if (!drag.m && Math.abs(dx) + Math.abs(dy) > 6) { drag.m = true; mp.setPointerCapture?.(e.pointerId) }  // capture only once it's a real drag, so taps still hit the LGA
-        if (drag.m) { const zw = $('#zw'); zw.style.transition = 'none'; S.px = drag.px + dx / zw.offsetWidth * 100; S.py = drag.py + dy / zw.offsetHeight * 100; sync(); return }
+        if (e.pointerType === 'mouse' && !e.buttons) endDrag();                 // button already released → never stick
+        else {
+          const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+          if (!drag.m && Math.abs(dx) + Math.abs(dy) > 6) { drag.m = true; mp.setPointerCapture(e.pointerId) }   // capture only once it's a real drag, so taps still land on the LGA
+          if (drag.m) { const zw = $('#zw'); zw.style.transition = 'none'; S.px = drag.px + dx / zw.offsetWidth * 100; S.py = drag.py + dy / zw.offsetHeight * 100; sync(); return }
+        }
       }
-      const t = e.target as HTMLElement; let h: Hov = null; if (t.classList.contains('lp')) h = { k: t.dataset.n!, st: false, s: S.st }; else if (t.id === 'mcv') { const l = labelAt(e); if (l) h = { k: KEYS[l - 1], st: true, s: '' } }
-      if (h?.k !== HOV?.k || h?.st !== HOV?.st) { HOV = h; drawMap() } tip(e.clientX, e.clientY)
+      const t = e.target as HTMLElement; let h: Hov = null;
+      if (t.classList.contains('lp')) h = { k: t.dataset.n!, st: false, s: S.st };
+      else if (t.id === 'mcv') { const l = labelAt(e); if (l) h = { k: KEYS[l - 1], st: true, s: '' } }
+      if (h?.k !== HOV?.k || h?.st !== HOV?.st) { HOV = h; drawMap() }
+      tip(e.clientX, e.clientY);
     };
-    mp.onpointerleave = () => { HOV = null; drawMap(); tip() };
-    mp.onclick = (e: MouseEvent) => { if (moved) { moved = false; return } const t = e.target as HTMLElement; if (t.classList.contains('lp')) { S.lga = t.dataset.n!; ctl(); body(); tip(); if (!mob900.matches) $('.lr.on')?.scrollIntoView({ block: 'nearest' }) } else if (t.id === 'mcv') { const l = labelAt(e); if (l) pick(KEYS[l - 1], '') } };
+    mp.onpointerleave = () => { if (drag) return; HOV = null; drawMap(); tip() };
+
+    mp.onclick = (e: MouseEvent) => {
+      if (moved) { moved = false; return }
+      const t = e.target as HTMLElement;
+      if (t.classList.contains('lp')) { S.lga = t.dataset.n!; ctl(); body(); tip(); if (!mob900.matches) $('.lr.on')?.scrollIntoView({ block: 'nearest' }) }
+      else if (t.id === 'mcv') { const l = labelAt(e); if (l) pick(KEYS[l - 1], '') }
+    };
     mp.querySelectorAll<HTMLElement>('[data-z]').forEach(b => b.onclick = () => { S.z = Math.max(.8, Math.min(3, S.z + .25 * +b.dataset.z!)); if (S.z <= 1) S.px = S.py = 0; sync() });
-    HOV = null; drawn = ''; sync(); drawMap()
+    HOV = null; drawn = ''; sync(); drawMap();
   }
 
   /* ---------- shell: tabs with sliding pill, year toggle with sliding thumb, theme toggle ---------- */
@@ -566,13 +628,17 @@ function main(): void {
   const curId = () => V[location.hash.slice(1)] ? location.hash.slice(1) : 'map';
   let anim = false;
   const slide = (box: HTMLElement | null, el: string, target: HTMLElement | null) => {
-    const k = box?.querySelector<HTMLElement>(el); if (!box || !k || !target) return;
+    const k = box?.querySelector<HTMLElement>(el); if (!box || !k) return; if (!target) { k.classList.remove('on'); return }
     k.style.width = target.offsetWidth + 'px'; k.style.transform = `translateX(${target.offsetLeft}px)`; k.classList.add('on'); k.classList.toggle('anim', anim);
+  };
+  const grp = (after: HTMLElement): HTMLElement => {
+    let g = $('#ctrls'); if (!g) { g = document.createElement('div'); g.id = 'ctrls'; g.className = 'ctrls'; after.after(g) }
+    return g;
   };
   function buildTabs() { $('#tabs').innerHTML = TABS.map(([k, l]) => `<a href="#${k}" data-k="${k}">${l}</a>`).join('') + '<i class="ink" aria-hidden="true"></i>' }
   function buildYears() {
     const old = $('#year'); old.style.display = 'none'; old.innerHTML = YEARS.map(y => `<option>${y}</option>`).join('');
-    let seg = $('#yseg'); if (!seg) { seg = document.createElement('div'); seg.id = 'yseg'; seg.className = 'yseg'; seg.setAttribute('role', 'radiogroup'); seg.setAttribute('aria-label', 'Election year'); old.after(seg) }
+    let seg = $('#yseg'); if (!seg) { seg = document.createElement('div'); seg.id = 'yseg'; seg.className = 'yseg'; seg.setAttribute('role', 'radiogroup'); seg.setAttribute('aria-label', 'Election year'); grp(old).append(seg) }
     seg.innerHTML = YEARS.map(y => `<button type="button" role="radio" data-y="${y}">${y}</button>`).join('') + '<i class="thumb" aria-hidden="true"></i>';
     seg.onclick = (e: any) => {
       const b = e.target.closest('button');
@@ -597,7 +663,7 @@ function main(): void {
       b.id = 'thm';
       b.type = 'button';
       b.className = 'thm';
-      b.innerHTML = `<svg class="moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M16.5 11.5A6.5 6.5 0 0 1 8.5 3.5a6.5 6.5 0 1 0 8 8Z"/></svg><svg class="sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="3.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M4.3 15.7l1.4-1.4M14.3 5.7l1.4-1.4"/></svg>`; ($('#yseg') || $('#year')).after(b);
+      b.innerHTML = `<svg class="moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M16.5 11.5A6.5 6.5 0 0 1 8.5 3.5a6.5 6.5 0 1 0 8 8Z"/></svg><svg class="sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="3.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M4.3 15.7l1.4-1.4M14.3 5.7l1.4-1.4"/></svg>`; grp($('#year')).append(b);
     }
 
     // Sync initial state on load
@@ -639,7 +705,8 @@ function main(): void {
     const seg = $('#yseg'); seg.querySelectorAll('button').forEach((b: any) => b.setAttribute('aria-checked', String(b.dataset.y === S.y)));
     slide(seg, '.thumb', seg.querySelector(`button[data-y="${S.y}"]`)); $('#year').value = S.y;
     const label = (k: string, l: string) => k === 'compare' ? (L ? 'LGA Comparison' : 'State Comparison') : l;
-    $('#navm').innerHTML = `<span class="chip">${label(id, TABS.find(t => t[0] === id)![1])}</span>${ic('sel', 20, '#919191')}<select id="navsel" aria-label="View">${TABS.map(([k, l]) => `<option value="${k}"${k === id ? ' selected' : ''}>${label(k, l)}</option>`).join('')}</select>`;
+    const NAV = [...TABS, ['about', 'About']];
+    $('#navm').innerHTML = `<span class="chip">${label(id, NAV.find(t => t[0] === id)![1])}</span>${ic('sel', 20, '#919191')}<select id="navsel" aria-label="View">${NAV.map(([k, l]) => `<option value="${k}"${k === id ? ' selected' : ''}>${label(k, l)}</option>`).join('')}</select>`;
     $('#navsel').onchange = (e: any) => { location.hash = e.target.value };
   }
   // Fluid page swap: fade/slide the old page out, render, fade/slide the new one in. Last call wins if clicks are rapid.
@@ -659,7 +726,6 @@ function main(): void {
   buildTabs(); buildYears(); buildTheme(); chrome(); page();
   requestAnimationFrame(() => requestAnimationFrame(() => { anim = true }));
   document.fonts?.ready.then(() => { chrome() });
-  addEventListener('resize', () => chrome());
-  addEventListener('hashchange', () => { chrome(); swap(page) });
-  mob.addEventListener?.('change', () => { chrome(); page() });
+  addEventListener('resize', () => { chrome(); sync(); });
+  addEventListener('hashchange', () => { chrome(); swap(page); scrollTo({ top: 0 }) }); mob.addEventListener?.('change', () => { chrome(); page() });
 }
