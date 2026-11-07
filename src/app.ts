@@ -3,6 +3,7 @@
 import STYLE from './styles.css';
 import EXTRA from './extra.css';
 import SHELL from './shell.html';
+import UI from './ui.css';
 import { OUTLINE, BORDERS, MASK, KEYS, BB, SO, LG } from './data/map-data';
 import { LOGO, LOGO_RATIO } from './data/brand';
 import { LGA_RESULTS, STATE_RESULTS_2015, STATE_RESULTS_2019 } from './data/results';
@@ -22,7 +23,7 @@ export function mount(): void {
   let th = ''; try { th = localStorage.getItem('nivo-theme') || '' } catch { }       // theme first → no flash of the wrong palette
   document.documentElement.dataset.theme = th || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = FONTS; document.head.append(l);
-  for (const css of [STYLE, EXTRA]) { const s = document.createElement('style'); s.textContent = css; document.head.append(s) }
+  for (const css of [STYLE, EXTRA, UI]) { const s = document.createElement('style'); s.textContent = css; document.head.append(s) }
   document.title = 'nivo – For Nigerian Voters';
   document.body.insertAdjacentHTML('afterbegin', SHELL);
   document.body.insertAdjacentHTML('beforeend', footerHtml());
@@ -530,8 +531,8 @@ function main(): void {
     tabs.querySelector('a[data-k=compare]').textContent = L ? 'LGA Comparison' : 'State Comparison';
     tabs.querySelectorAll('a').forEach((a: any) => a.dataset.k === id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
     slide(tabs, '.ink', tabs.querySelector('a[aria-current=page]'));
-    // const seg = $('#yseg'); seg.querySelectorAll('button').forEach((b: any) => b.setAttribute('aria-checked', String(b.dataset.y === S.y)));
-    // slide(seg, '.thumb', seg.querySelector(`button[data-y="${S.y}"]`)); $('#year').value = S.y; fit($('#year'));
+    const seg = $('#yseg'); seg.querySelectorAll('button').forEach((b: any) => b.setAttribute('aria-checked', String(b.dataset.y === S.y)));
+    slide(seg, '.thumb', seg.querySelector(`button[data-y="${S.y}"]`)); $('#year').value = S.y; fit($('#year'));
     const label = (k: string, l: string) => k === 'compare' ? (L ? 'LGA Comparison' : 'State Comparison') : l;
     $('#navm').innerHTML = `<span class="chip">${label(id, NAV.find(t => t[0] === id)![1])}</span>${ic('sel', 20, '#919191')}<select id="navsel" aria-label="View">${NAV.map(([k, l]) => `<option value="${k}"${k === id ? ' selected' : ''}>${label(k, l)}</option>`).join('')}</select>`;
     $('#navsel').onchange = (e: any) => { location.hash = e.target.value; done(e) };
