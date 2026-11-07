@@ -58,6 +58,13 @@ html[data-theme=dark] #year {
     aspect-ratio: 736 / 654;
 }
 
+/* ---------- Mobile map sizing ---------- */
+@media (max-width: 768px) {
+    .mb {
+        aspect-ratio: 1 / 1.15;
+    }
+}
+
 #mcv,
 #mhv,
 .bd,
