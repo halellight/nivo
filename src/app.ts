@@ -3,7 +3,7 @@
 import STYLE from './styles.css';
 import EXTRA from './extra.css';
 import SHELL from './shell.html';
-import UI from './ui.css';
+// import UI from './ui.css';
 import { OUTLINE, BORDERS, MASK, KEYS, BB, SO, LG } from './data/map-data';
 import { LOGO, LOGO_RATIO } from './data/brand';
 import { LGA_RESULTS, STATE_RESULTS_2015, STATE_RESULTS_2019 } from './data/results';
@@ -23,7 +23,7 @@ export function mount(): void {
   let th = ''; try { th = localStorage.getItem('nivo-theme') || '' } catch { }       // theme first → no flash of the wrong palette
   document.documentElement.dataset.theme = th || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = FONTS; document.head.append(l);
-  for (const css of [STYLE, EXTRA, UI]) { const s = document.createElement('style'); s.textContent = css; document.head.append(s) }
+  for (const css of [STYLE, EXTRA]) { const s = document.createElement('style'); s.textContent = css; document.head.append(s) }
   document.title = 'nivo – For Nigerian Voters';
   document.body.insertAdjacentHTML('afterbegin', SHELL);
   document.body.insertAdjacentHTML('beforeend', footerHtml());

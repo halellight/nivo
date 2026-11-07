@@ -1,10 +1,13 @@
-/* extra.css – appended AFTER styles.css (see mount()). Dark mode, fluid toggles, page transitions, avatars. */
+/* extra.css – appended AFTER styles.css (see mount()). Dark mode, fluid toggles, page transitions, avatars, map layout, footer, new pages. */
 :root {
     --ease: cubic-bezier(.22, 1, .36, 1);
     color-scheme: light;
+    --fill-disabled: #dcdcdc;
 }
 
-/* ---------- Dark mode: remaps the design tokens used by styles.css ---------- */
+/* ← set to your Figma "fill-disabled" value */
+
+/* ---------- Dark mode ---------- */
 html[data-theme=dark] {
     color-scheme: dark;
     --g50: #1b1c1e;
@@ -23,14 +26,14 @@ html[data-theme=dark] {
     --blu600: #82b7ff;
     --grn50: #12261b;
     --grn800: #8fe3ac;
-    --bg-d: #000000;
+    --bg-d: #000;
     --sf-d: #17181b;
     --header-bg: var(--bg-d);
     --border-color: var(--g100);
     --text-color: var(--g900);
     --hover-bg: var(--g100);
     --white: var(--sf-d);
-
+    --fill-disabled: #34363b;
 }
 
 html[data-theme=dark] .mp {
@@ -43,7 +46,7 @@ html[data-theme=dark] body {
     color: var(--g800);
 }
 
-html[data-theme=dark] :is(.card, .tip, .sel, .sbx, .seg, .stat, .zoom button, .allst, .note) {
+html[data-theme=dark] :is(.card, .tip, .lcard, .sel, .sbx, .seg, .stat, .zoom button, .allst, .note) {
     background-color: var(--sf-d);
     color: var(--g800);
     border-color: var(--g100);
@@ -70,12 +73,10 @@ html[data-theme=dark] option {
     color: var(--g800);
 }
 
-/* brief global cross-fade while the theme flips */
 html.tx *,
 html.tx *::before,
 html.tx *::after {
-    transition: background-color .35s var(--ease), color .35s var(--ease), border-color .35s var(--ease),
-        fill .35s var(--ease), stroke .35s var(--ease), filter .35s var(--ease) !important;
+    transition: background-color .35s var(--ease), color .35s var(--ease), border-color .35s var(--ease), fill .35s var(--ease), stroke .35s var(--ease), filter .35s var(--ease) !important;
 }
 
 /* ---------- Brand ---------- */
@@ -88,29 +89,32 @@ html.tx *::after {
 /* ---------- Sliding tab pill ---------- */
 #tabs {
     position: relative;
+    min-width: 0;
+    scrollbar-width: none;
+}
+
+#tabs::-webkit-scrollbar {
+    display: none;
 }
 
 #tabs a {
     position: relative;
     z-index: 2;
-    transition: background-color 0.3s var(--ease), color 0.3s var(--ease), transform 0.15s ease;
+    transition: background-color .3s var(--ease), color .3s var(--ease), transform .15s ease;
 }
 
 #tabs a:active {
-    transform: scale(0.97);
-    /* subtle click effect */
+    transform: scale(.97);
 }
 
 #tabs a[aria-current=page] {
     background: transparent !important;
-    color: #ffffff !important;
-    /* Forces active text to be white */
+    color: #fff !important;
 }
 
 #tabs .ink {
     position: absolute;
     z-index: 1;
-    /* Sits behind the text */
     left: 0;
     top: 4px;
     bottom: 4px;
@@ -129,7 +133,11 @@ html.tx *::after {
     transition: transform .5s var(--ease), width .5s var(--ease), opacity .2s;
 }
 
-/* ---------- Year segmented toggle with sliding thumb ---------- */
+html[data-theme=dark] #tabs .ink {
+    background: var(--g100);
+}
+
+/* ---------- Year: sliding toggle on desktop, dropdown on phones ---------- */
 .yseg {
     position: relative;
     display: inline-flex;
@@ -181,15 +189,8 @@ html[data-theme=dark] .yseg .thumb {
     box-shadow: none;
 }
 
-/* Dims the sliding thumb on the year selector in dark mode */
-html[data-theme=dark] .yseg .thumb {
-    background: var(--g200);
-    box-shadow: none;
-}
-
-/* Ensures the active tab pill in the header is dark */
-html[data-theme=dark] #tabs .ink {
-    background: var(--g100);
+#year {
+    display: none;
 }
 
 /* ---------- Theme toggle ---------- */
@@ -204,7 +205,6 @@ html[data-theme=dark] #tabs .ink {
     color: var(--g800);
     display: inline-grid;
     place-items: center;
-    margin-left: 8px;
     transition: background-color .25s var(--ease), transform .25s var(--ease);
 }
 
@@ -256,7 +256,7 @@ html[data-theme=dark] .thm .moon {
     transition: none;
 }
 
-/* ---------- General fluidity ---------- */
+/* ---------- General fluidity + dropdowns ---------- */
 .sel,
 .seg,
 .sbx,
@@ -267,15 +267,42 @@ html[data-theme=dark] .thm .moon {
 .lr,
 .zoom button,
 .res {
-    transition: background-color .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease),
-        opacity .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+    transition: background-color .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease), opacity .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
 }
 
-#zw {
-    transition: transform .65s var(--ease);
+select.sel:focus:not(:focus-visible),
+.cbi:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
 }
 
-#lgasvg .lp {
+/* no native box after you've chosen with the mouse */
+.seg .sel,
+#year {
+    width: auto;
+    flex: 0 0 auto !important;
+    min-width: 0;
+    max-width: none !important;
+}
+
+/* hug the selected text (JS sets the exact width) */
+.ctl .seg {
+    flex: 0 1 auto !important;
+    width: auto !important;
+}
+
+.ctl .seg.srch {
+    flex: 0 0 auto !important;
+    width: auto !important;
+}
+
+/* search open: the left container hugs its content */
+.ctl .sbx.srch {
+    flex: 1 1 0 !important;
+    min-width: 0;
+}
+
+.lp {
     transition: fill .25s var(--ease), opacity .25s var(--ease);
 }
 
@@ -320,7 +347,19 @@ html[data-theme=dark] .thm .moon {
     }
 }
 
-/* ---------- Header ---------- */
+/* ===================== HEADER ===================== */
+.ctrls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+.hd .bar {
+    flex-wrap: nowrap !important;
+    min-width: 0;
+}
+
 @media (min-width: 761px) {
     .hd .wrap {
         max-width: 1400px !important;
@@ -330,8 +369,12 @@ html[data-theme=dark] .thm .moon {
     .brand-logo {
         transform: translateY(-2px);
     }
+}
 
-    /* only the logo, not .brand too */
+@media (min-width: 1101px) and (max-width: 1280px) {
+    .hd .wrap {
+        gap: 28px !important;
+    }
 }
 
 @media (max-width: 760px) {
@@ -360,115 +403,7 @@ html[data-theme=dark] .thm .moon {
     }
 }
 
-/* ---------- Map rendering ---------- */
-#zw,
-.zw,
-.mb {
-    will-change: auto !important;
-    backface-visibility: visible !important;
-}
-
-.bd path,
-#lgasvg path {
-    vector-effect: non-scaling-stroke;
-}
-
-.mb {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 736 / 654;
-}
-
-#mcv,
-.bd,
-#lgasvg {
-    position: absolute;
-    inset: 0;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-/* ===== MAP LAYOUT (replaces the old "Mobile / tablet: pinned map + pinned Go back" block) ===== */
-.mp {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.mp .zw {
-    width: 100%;
-}
-
-@media (max-width: 900px) {
-    .mapv {
-        display: block;
-    }
-
-    .mp {
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        width: 100%;
-        margin: 0;
-        padding: 8px;
-        aspect-ratio: auto;
-        border-radius: 0 0 16px 16px;
-        /* big: about as tall as it is wide, but never more than ~60% of the screen (so the list stays reachable) */
-        height: clamp(320px, 105vw, 62vh);
-        height: clamp(320px, 105vw, 62svh);
-    }
-
-    .mp .zw {
-        max-width: none;
-    }
-
-    #bkbar {
-        display: none;
-    }
-
-    /* "Full map" inside the map does this job, and the sticky bar was overlapping content */
-    .rp {
-        padding: 16px 12px 32px;
-    }
-}
-
-/* ===================== HEADER (tablet fix) ===================== */
-/* year toggle + theme button live in one group, so they can never split across rows */
-.ctrls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: none;
-}
-
-.ctrls .thm {
-    margin-left: 0;
-}
-
-.hd .bar {
-    flex-wrap: nowrap !important;
-    min-width: 0;
-}
-
-#tabs {
-    min-width: 0;
-    scrollbar-width: none;
-}
-
-#tabs::-webkit-scrollbar {
-    display: none;
-}
-
-@media (min-width: 1101px) and (max-width: 1280px) {
-    .hd .wrap {
-        gap: 28px !important;
-    }
-}
-
-/* tablet / small laptop: a deliberate two-row header
-   [logo ................ 2023 2019 2015 (☾)]
-   [     Map · Dashboard · Compare · …       ] */
+/* tablet: deliberate two rows  [logo ......... 2023 2019 2015 ☾]  /  [ tabs ] */
 @media (min-width: 601px) and (max-width: 1100px) {
     .hd .wrap {
         display: flex !important;
@@ -503,7 +438,6 @@ html[data-theme=dark] .thm .moon {
         height: 0;
     }
 
-    /* forces the tabs onto their own row */
     .hd #tabs {
         order: 3;
         margin: 6px auto 0;
@@ -511,14 +445,37 @@ html[data-theme=dark] .thm .moon {
     }
 }
 
-/* ===================== FOOTER ===================== */
+/* phones: the year becomes a dropdown so the view menu never wraps */
+@media (max-width: 600px) {
+    .yseg {
+        display: none;
+    }
+
+    #year {
+        display: inline-block;
+    }
+
+    .hd .bar {
+        justify-content: space-between;
+        gap: 8px;
+    }
+}
+
+/* ===================== STICKY FOOTER ===================== */
+body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
 #v {
-    min-height: 60vh;
+    flex: 1 0 auto;
 }
 
 .ft {
     margin-top: 48px;
     border-top: 1px solid var(--g100);
+    flex: none;
 }
 
 .ft-in {
@@ -563,6 +520,11 @@ html[data-theme=dark] .thm .moon {
     gap: 16px;
 }
 
+body.is-map .ft {
+    display: none;
+}
+
+/* no footer on the map page */
 @media (max-width: 600px) {
     .ft-in {
         flex-direction: column;
@@ -576,7 +538,499 @@ html[data-theme=dark] .thm .moon {
     }
 }
 
-/* ===================== ABOUT PAGE ===================== */
+/* ===================== MAP ===================== */
+#zw,
+.zw,
+.mb {
+    will-change: auto !important;
+    backface-visibility: visible !important;
+}
+
+#zw {
+    transition: transform .65s var(--ease);
+    transform-origin: 0 0;
+}
+
+.bd path,
+#lgasvg path {
+    vector-effect: non-scaling-stroke;
+}
+
+.mb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 736 / 654;
+}
+
+#mcv,
+#mhv,
+.bd,
+#lgasvg {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#mhv {
+    pointer-events: none;
+}
+
+.mp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.mp .zw {
+    width: 100%;
+}
+
+.lp.nd {
+    cursor: default;
+}
+
+.sf {
+    stroke: none;
+    pointer-events: none;
+}
+
+#lgasvg.lv .lp:not(.on) {
+    opacity: .5;
+}
+
+.lp.on {
+    stroke: var(--g900);
+    stroke-width: calc(2px * var(--k, 1));
+}
+
+/* tooltip: sits at 0,0 and is moved with transform (no layout, no lag); contents morph */
+.tip {
+    left: 0 !important;
+    top: 0 !important;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.tip .tt.t-r {
+    transition: background-color .18s linear;
+}
+
+.tip.nd .t-h,
+.tip.nd .t-r {
+    display: none !important;
+}
+
+.tip.dock {
+    transform: none !important;
+    left: 12px !important;
+    right: 64px;
+    top: auto !important;
+    bottom: 12px;
+    width: auto;
+    max-width: none;
+    padding: 10px 0;
+}
+
+.tip.dock .tt,
+.tip.dock hr {
+    display: none !important;
+}
+
+/* LGA detail card drawn on the map */
+.lcard {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 3;
+    width: min(340px, calc(100% - 76px));
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--white, #fff);
+    border: 1px solid var(--g100);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+}
+
+.lcard[hidden] {
+    display: none;
+}
+
+.lc-r {
+    display: grid;
+    grid-template-columns: 54px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    font: 500 13px/18px var(--font);
+}
+
+.lc-p {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lc-b {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--g100);
+    overflow: hidden;
+}
+
+.lc-b i {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+}
+
+.lc-v {
+    white-space: nowrap;
+}
+
+/* LGA table: grey rows for LGAs with no data + the arrow that opens an LGA */
+.lr.nd {
+    color: var(--g500);
+}
+
+.lr .go {
+    all: unset;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    transition: background-color .2s var(--ease), transform .2s var(--ease);
+}
+
+.lr .go:hover {
+    background: var(--g100);
+    transform: translateX(2px);
+}
+
+.lr .go:focus-visible {
+    outline: 2px solid currentColor;
+}
+
+/* DESKTOP: the map page is exactly one viewport tall – the page never scrolls, the results panel does */
+@media (min-width: 901px) {
+    body.is-map {
+        overflow: hidden;
+    }
+
+    body.is-map .mapv {
+        height: calc(100dvh - var(--hdr, 96px)) !important;
+        min-height: 0 !important;
+    }
+
+    body.is-map .mp {
+        height: 100% !important;
+        position: relative;
+        top: 0;
+    }
+
+    body.is-map .rp {
+        height: 100%;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        align-self: stretch;
+    }
+}
+
+/* PHONES / TABLETS: title above the map, results below it, map pinned while you scroll */
+@media (max-width: 900px) {
+    .mapv {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    .rp {
+        display: contents;
+    }
+
+    #bkbar {
+        order: 1;
+    }
+
+    #ph {
+        order: 2;
+    }
+
+    .mp {
+        order: 3;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        width: 100%;
+        margin: 0;
+        padding: 8px;
+        aspect-ratio: auto;
+        border-radius: 0 0 16px 16px;
+        height: clamp(320px, 105vw, 62vh);
+        height: clamp(320px, 105vw, 62svh);
+    }
+
+    .mp .zw {
+        max-width: none;
+    }
+
+    #lg {
+        order: 4;
+    }
+
+    #ctl {
+        order: 5;
+    }
+
+    #pb {
+        order: 6;
+    }
+
+    #bkbar,
+    #ph,
+    #lg,
+    #ctl,
+    #pb {
+        padding-inline: 12px;
+    }
+
+    #pb {
+        padding-bottom: 32px;
+    }
+
+    .lcard {
+        left: 8px;
+        right: 64px;
+        width: auto;
+        bottom: 8px;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+    .mp {
+        position: relative;
+    }
+}
+
+/* ===================== COMBOBOX (compare page) ===================== */
+.pair {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.cb {
+    position: relative;
+}
+
+.cbi {
+    width: 260px;
+    max-width: 100%;
+    cursor: text;
+}
+
+.cbl {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 6px);
+    left: 0;
+    width: max(100%, 280px);
+    max-height: 300px;
+    overflow: auto;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    border-radius: 12px;
+    background: var(--white, #fff);
+    border: 1px solid var(--g100);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+}
+
+.cbl[hidden] {
+    display: none;
+}
+
+.cbl li {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font: 500 14px/20px var(--font);
+    cursor: pointer;
+}
+
+.cbl li.on,
+.cbl li:hover {
+    background: var(--g50);
+}
+
+.cbl li.none {
+    color: var(--g500);
+    cursor: default;
+}
+
+@media (max-width: 600px) {
+
+    .pair,
+    .cb,
+    .cbi {
+        width: 100%;
+    }
+}
+
+/* ===================== INSIGHTS ===================== */
+.ps {
+    gap: 24px;
+    flex-wrap: wrap;
+    margin: 12px 0 16px;
+}
+
+.ps .stat {
+    flex: 1 1 200px;
+}
+
+.ir {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--g100);
+}
+
+.ir:last-child {
+    border-bottom: 0;
+}
+
+.irp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: right;
+}
+
+.irp.r {
+    text-align: left;
+}
+
+.irp span {
+    display: flex;
+    flex-direction: column;
+}
+
+.irp i.xs {
+    font-style: normal;
+}
+
+.irg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.irg b {
+    font: 500 16px/22px var(--font);
+}
+
+.irg .xs {
+    opacity: .85;
+}
+
+@media (max-width: 700px) {
+    .ir {
+        grid-template-columns: 1fr auto;
+    }
+
+    .ir .fl {
+        grid-column: 1/-1;
+    }
+
+    .irg {
+        min-width: 100px;
+    }
+}
+
+.apx {
+    position: relative;
+    height: 350px;
+    overflow: hidden;
+    background: repeating-linear-gradient(135deg, var(--g100) 0 1px, transparent 1px 9px), var(--g50);
+}
+
+.ap {
+    position: absolute;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 12px;
+    font: 500 15px/20px var(--font);
+    color: #181818;
+}
+
+.ap b {
+    font: 500 22px/28px var(--font);
+}
+
+.ap b.big {
+    font-size: 28px;
+}
+
+.ap-reg {
+    top: 0;
+    width: 100%;
+}
+
+.ap-pvc {
+    top: 68px;
+    bottom: 0;
+    background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .28) 0 1px, transparent 1px 9px), #ff9845;
+}
+
+.ap-vot {
+    bottom: 0;
+    background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .28) 0 1px, transparent 1px 9px), #2f9bff;
+}
+
+html[data-theme=dark] .ap {
+    color: #fff;
+}
+
+html[data-theme=dark] .ap-reg {
+    color: var(--g800);
+}
+
+.flr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--g100);
+}
+
+.flp {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 500 14px/20px var(--font);
+}
+
+.flr.more-r {
+    display: none;
+}
+
+#flc.open .flr.more-r {
+    display: flex;
+}
+
+#flb {
+    width: 100%;
+    margin-top: 12px;
+}
+
+/* ===================== ABOUT + FEEDBACK ===================== */
 .page a:not(.card) {
     color: inherit;
     text-decoration: underline;
@@ -594,4 +1048,65 @@ html[data-theme=dark] .thm .moon {
 .ab-tile:focus-visible {
     border-color: var(--g300);
     transform: translateY(-2px);
+}
+
+.fb {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fb label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.fb textarea,
+.fb .fb-i {
+    font: 400 16px/24px var(--font);
+    padding: 12px 14px;
+    border: 1px solid var(--g100);
+    border-radius: 12px;
+    background: var(--white, #fff);
+    color: inherit;
+    resize: vertical;
+    transition: border-color .2s var(--ease);
+}
+
+.fb textarea:focus,
+.fb .fb-i:focus {
+    outline: none;
+    border-color: var(--g400);
+}
+
+.fb .sel {
+    width: 100%;
+    max-width: 320px;
+}
+
+.fb-hp {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+    height: 0;
+    width: 0;
+}
+
+.fb-btn {
+    align-self: flex-start;
+    padding: 12px 20px;
+}
+
+.fb-btn:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+.fb-ok {
+    color: var(--grn800, #1f7a3d);
+}
+
+.fb-err {
+    color: var(--red600, #c0392b);
 }

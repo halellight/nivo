@@ -883,3 +883,602 @@ html[data-theme=dark] .cb .cbi {
         font-size: 14px;
     }
 }
+
+
+/* extra.css – appended AFTER styles.css (see mount()). Dark mode, fluid toggles, page transitions, avatars. */
+:root {
+    --ease: cubic-bezier(.22, 1, .36, 1);
+    color-scheme: light;
+}
+
+/* ---------- Dark mode: remaps the design tokens used by styles.css ---------- */
+html[data-theme=dark] {
+    color-scheme: dark;
+    --g50: #1b1c1e;
+    --g100: #25262a;
+    --g200: #33353a;
+    --g300: #45474d;
+    --g400: #6a6d74;
+    --g500: #8b8e95;
+    --g600: #a9acb3;
+    --g700: #c4c6cc;
+    --g800: #e4e5e8;
+    --g900: #f4f4f5;
+    --red50: #2b1719;
+    --red600: #a72b22;
+    --blu50: #14212f;
+    --blu600: #82b7ff;
+    --grn50: #12261b;
+    --grn800: #8fe3ac;
+    --bg-d: #000000;
+    --sf-d: #17181b;
+    --header-bg: var(--bg-d);
+    --border-color: var(--g100);
+    --text-color: var(--g900);
+    --hover-bg: var(--g100);
+    --white: var(--sf-d);
+
+}
+
+html[data-theme=dark] .mp {
+    background-color: var(--bg-d);
+}
+
+html[data-theme=dark],
+html[data-theme=dark] body {
+    background: var(--bg-d);
+    color: var(--g800);
+}
+
+html[data-theme=dark] :is(.card, .tip, .sel, .sbx, .seg, .stat, .zoom button, .allst, .note) {
+    background-color: var(--sf-d);
+    color: var(--g800);
+    border-color: var(--g100);
+}
+
+html[data-theme=dark] .allst svg {
+    stroke: #e4e5e8;
+}
+
+html[data-theme=dark] .bd .b1 {
+    stroke: #0e0f11;
+}
+
+html[data-theme=dark] .bd .b0 {
+    stroke: #3a3c41;
+}
+
+html[data-theme=dark] .brand-logo {
+    filter: invert(1);
+}
+
+html[data-theme=dark] option {
+    background: var(--sf-d);
+    color: var(--g800);
+}
+
+/* brief global cross-fade while the theme flips */
+html.tx *,
+html.tx *::before,
+html.tx *::after {
+    transition: background-color .35s var(--ease), color .35s var(--ease), border-color .35s var(--ease),
+        fill .35s var(--ease), stroke .35s var(--ease), filter .35s var(--ease) !important;
+}
+
+/* ---------- Brand ---------- */
+.brand-logo {
+    display: block;
+    height: 28px;
+    width: auto;
+}
+
+/* ---------- Sliding tab pill ---------- */
+#tabs {
+    position: relative;
+}
+
+#tabs a {
+    position: relative;
+    z-index: 2;
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease), transform 0.15s ease;
+}
+
+#tabs a:active {
+    transform: scale(0.97);
+    /* subtle click effect */
+}
+
+#tabs a[aria-current=page] {
+    background: transparent !important;
+    color: #ffffff !important;
+    /* Forces active text to be white */
+}
+
+#tabs .ink {
+    position: absolute;
+    z-index: 1;
+    /* Sits behind the text */
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 0;
+    border-radius: 999px;
+    background: #181818;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#tabs .ink.on {
+    opacity: 1;
+}
+
+#tabs .ink.anim {
+    transition: transform .5s var(--ease), width .5s var(--ease), opacity .2s;
+}
+
+/* ---------- Year segmented toggle with sliding thumb ---------- */
+.yseg {
+    position: relative;
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--g100);
+    isolation: isolate;
+}
+
+.yseg button {
+    all: unset;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font: 500 13px/1 Geist, system-ui, sans-serif;
+    color: var(--g600);
+    transition: color .25s var(--ease);
+}
+
+.yseg button[aria-checked=true] {
+    color: var(--g900);
+}
+
+.yseg button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.yseg .thumb {
+    position: absolute;
+    z-index: 0;
+    top: 3px;
+    bottom: 3px;
+    left: 0;
+    width: 0;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .14);
+}
+
+.yseg .thumb.anim {
+    transition: transform .5s var(--ease), width .5s var(--ease);
+}
+
+html[data-theme=dark] .yseg .thumb {
+    background: var(--g200);
+    box-shadow: none;
+}
+
+/* Dims the sliding thumb on the year selector in dark mode */
+html[data-theme=dark] .yseg .thumb {
+    background: var(--g200);
+    box-shadow: none;
+}
+
+/* Ensures the active tab pill in the header is dark */
+html[data-theme=dark] #tabs .ink {
+    background: var(--g100);
+}
+
+/* ---------- Theme toggle ---------- */
+.thm {
+    all: unset;
+    cursor: pointer;
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--g100);
+    color: var(--g800);
+    display: inline-grid;
+    place-items: center;
+    margin-left: 8px;
+    transition: background-color .25s var(--ease), transform .25s var(--ease);
+}
+
+.thm:hover {
+    transform: scale(1.06);
+}
+
+.thm:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.thm svg {
+    grid-area: 1/1;
+    width: 18px;
+    height: 18px;
+    transition: transform .5s var(--ease), opacity .3s var(--ease);
+}
+
+.thm .sun {
+    opacity: 0;
+    transform: rotate(-90deg) scale(.5);
+}
+
+html[data-theme=dark] .thm .sun {
+    opacity: 1;
+    transform: none;
+}
+
+html[data-theme=dark] .thm .moon {
+    opacity: 0;
+    transform: rotate(90deg) scale(.5);
+}
+
+/* ---------- Page transition ---------- */
+#v {
+    transition: opacity .22s var(--ease), transform .3s var(--ease);
+    will-change: opacity, transform;
+}
+
+#v.out {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+#v.in {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: none;
+}
+
+/* ---------- General fluidity ---------- */
+.sel,
+.seg,
+.sbx,
+.more,
+.back,
+.allst,
+.cell,
+.lr,
+.zoom button,
+.res {
+    transition: background-color .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease),
+        opacity .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+
+#zw {
+    transition: transform .65s var(--ease);
+}
+
+#lgasvg .lp {
+    transition: fill .25s var(--ease), opacity .25s var(--ease);
+}
+
+/* ---------- Candidate avatars ---------- */
+.av {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-grid;
+    place-items: center;
+    overflow: hidden;
+    background: var(--g100) center top / cover no-repeat;
+    color: var(--g700);
+    font: 600 12px/1 Geist, system-ui, sans-serif;
+}
+
+.av.ph-on {
+    font-size: 0;
+}
+
+/* ---------- State-level-only years ---------- */
+.seg.nolga #lga {
+    display: none;
+}
+
+.mapv.nolga #lgasvg .lp {
+    pointer-events: none;
+}
+
+.lvl-note {
+    margin: 12px 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
+
+/* ---------- Header ---------- */
+@media (min-width: 761px) {
+    .hd .wrap {
+        max-width: 1400px !important;
+        gap: 48px !important;
+    }
+
+    .brand-logo {
+        transform: translateY(-2px);
+    }
+
+    /* only the logo, not .brand too */
+}
+
+@media (max-width: 760px) {
+    .hd .wrap {
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+
+    .brand {
+        flex: 0 0 100%;
+        display: flex;
+        justify-content: center;
+        transform: none;
+        margin: 0;
+        padding: 0;
+        line-height: 0;
+    }
+
+    .brand-logo {
+        height: 28px;
+        transform: none;
+        margin: 4px;
+    }
+}
+
+/* ---------- Map rendering ---------- */
+#zw,
+.zw,
+.mb {
+    will-change: auto !important;
+    backface-visibility: visible !important;
+}
+
+.bd path,
+#lgasvg path {
+    vector-effect: non-scaling-stroke;
+}
+
+.mb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 736 / 654;
+}
+
+#mcv,
+.bd,
+#lgasvg {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ===== MAP LAYOUT (replaces the old "Mobile / tablet: pinned map + pinned Go back" block) ===== */
+.mp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.mp .zw {
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .mapv {
+        display: block;
+    }
+
+    .mp {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        width: 100%;
+        margin: 0;
+        padding: 8px;
+        aspect-ratio: auto;
+        border-radius: 0 0 16px 16px;
+        /* big: about as tall as it is wide, but never more than ~60% of the screen (so the list stays reachable) */
+        height: clamp(320px, 105vw, 62vh);
+        height: clamp(320px, 105vw, 62svh);
+    }
+
+    .mp .zw {
+        max-width: none;
+    }
+
+    #bkbar {
+        display: none;
+    }
+
+    /* "Full map" inside the map does this job, and the sticky bar was overlapping content */
+    .rp {
+        padding: 16px 12px 32px;
+    }
+}
+
+/* ===================== HEADER (tablet fix) ===================== */
+/* year toggle + theme button live in one group, so they can never split across rows */
+.ctrls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+.ctrls .thm {
+    margin-left: 0;
+}
+
+.hd .bar {
+    flex-wrap: nowrap !important;
+    min-width: 0;
+}
+
+#tabs {
+    min-width: 0;
+    scrollbar-width: none;
+}
+
+#tabs::-webkit-scrollbar {
+    display: none;
+}
+
+@media (min-width: 1101px) and (max-width: 1280px) {
+    .hd .wrap {
+        gap: 28px !important;
+    }
+}
+
+/* tablet / small laptop: a deliberate two-row header
+   [logo ................ 2023 2019 2015 (☾)]
+   [     Map · Dashboard · Compare · …       ] */
+@media (min-width: 601px) and (max-width: 1100px) {
+    .hd .wrap {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center;
+        justify-content: space-between !important;
+        gap: 0 16px !important;
+        padding: 6px 20px 12px !important;
+        max-width: none !important;
+    }
+
+    .hd .brand {
+        flex: 0 0 auto !important;
+        justify-content: flex-start !important;
+        padding: 8px 0 !important;
+        margin: 0 !important;
+        order: 1;
+    }
+
+    .hd .bar {
+        display: contents;
+    }
+
+    .hd .ctrls {
+        order: 2;
+    }
+
+    .hd .wrap::after {
+        content: "";
+        order: 2;
+        flex: 0 0 100%;
+        height: 0;
+    }
+
+    /* forces the tabs onto their own row */
+    .hd #tabs {
+        order: 3;
+        margin: 6px auto 0;
+        max-width: 100%;
+    }
+}
+
+/* ===================== FOOTER ===================== */
+#v {
+    min-height: 60vh;
+}
+
+.ft {
+    margin-top: 48px;
+    border-top: 1px solid var(--g100);
+}
+
+.ft-in {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 24px;
+    font: 400 13px/20px var(--font);
+    letter-spacing: -.26px;
+    color: var(--g500);
+}
+
+@media (min-width: 761px) {
+    .ft-in {
+        max-width: 1400px;
+    }
+}
+
+.ft p {
+    margin: 0;
+}
+
+.ft a {
+    color: var(--g700);
+    text-decoration: none;
+    transition: color .2s var(--ease);
+}
+
+.ft a:hover,
+.ft a:focus-visible {
+    color: var(--g900);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.ft-n {
+    display: flex;
+    gap: 16px;
+}
+
+@media (max-width: 600px) {
+    .ft-in {
+        flex-direction: column;
+        text-align: center;
+        gap: 6px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .ft-n {
+        order: -1;
+    }
+}
+
+/* ===================== ABOUT PAGE ===================== */
+.page a:not(.card) {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.ab-tile {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .25s var(--ease), transform .25s var(--ease);
+}
+
+.ab-tile:hover,
+.ab-tile:focus-visible {
+    border-color: var(--g300);
+    transform: translateY(-2px);
+}
