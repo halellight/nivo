@@ -805,6 +805,55 @@ body.is-map .ft {
         width: auto;
         bottom: 8px;
     }
+
+    .snb {
+        order: 3;
+        display: none;
+        position: sticky;
+        top: 0;
+        z-index: 25;
+        align-items: center;
+        gap: 8px;
+        height: 44px;
+        padding: 0 12px;
+        background: var(--header-bg, #fff);
+        border-bottom: 1px solid var(--g100);
+        font: 600 16px/20px var(--font);
+        color: var(--g900);
+    }
+
+    .mapv.has-sel .snb {
+        display: flex;
+    }
+
+    .mapv.has-sel .mp {
+        top: 44px;
+    }
+
+    /* map sticks just under the name bar */
+    .snb-b {
+        all: unset;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+
+    .snb-t {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .snb-t i {
+        font-style: normal;
+        color: var(--g500);
+    }
+}
+
+.snb {
+    display: none;
 }
 
 @media (min-width: 601px) and (max-width: 900px) {
@@ -940,7 +989,8 @@ body.is-map .ft {
 
 @media (max-width: 700px) {
     .ir {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 8px;
     }
 
     .ir .fl {
@@ -948,10 +998,30 @@ body.is-map .ft {
     }
 
     .irg {
-        min-width: 100px;
+        min-width: 84px;
+        padding: 6px 8px;
+    }
+
+    .irp:not(.r) {
+        justify-content: flex-end;
     }
 }
 
+@media (max-width: 600px) {
+    .tw>div {
+        min-width: 560px !important;
+    }
+
+    .cbi {
+        font-size: 16px;
+    }
+}
+
+#lgasvg.lv .lp:not(.on) {
+    opacity: .25;
+}
+
+/* was .5 */
 .apx {
     position: relative;
     height: 350px;

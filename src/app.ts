@@ -223,7 +223,7 @@ function main(): void {
   /* views */
   const V: Record<string, () => string> = {};
   const tipSkeleton = `<h4 class="md ell t-nm"></h4><p class="xs sub t-sub" style="padding:4px 16px 8px"></p><div class="tt xsb sub t-h"><span class="c1">Party</span><span class="c2">Margin</span><span class="c3">Votes</span></div><hr class="t-h">${[0, 1].map(k => `<div class="tt sm t-r t-r${k}"><span class="c1 row" style="gap:6px"><i class="dot"></i><b class="t-p"></b></span><span class="c2"></span><span class="c3"></span></div>`).join('')}`;
-  V.map = () => `<section class="mapv${hasLga() ? '' : ' nolga'}"><div class="mp" id="mp"><div class="zw" id="zw"><div class="mb" id="mb" role="group" aria-label="Map of Nigeria"><canvas id="mcv" width="736" height="654"></canvas><canvas id="mhv" width="736" height="654"></canvas><svg class="bd" viewBox="0 0 736 654" aria-hidden="true"><path class="b1" d="${BORDERS}"/><path class="b0" d="${OUTLINE}"/></svg><svg id="lgasvg" viewBox="0 0 736 654"></svg></div></div><button class="allst" id="allst" aria-label="Show the full map" title="Show the full map">${ic('fit', 18, '#181818')}Full map</button><div class="tip" id="tip" style="display:none">${tipSkeleton}</div><div class="lcard" id="lcard" hidden></div><div class="zoom"><button data-z="1" aria-label="Zoom in">${ic('add')}</button><hr><button data-z="-1" aria-label="Zoom out">${ic('rem')}</button></div></div><aside class="rp"><div id="bkbar"></div><div id="ph"></div><div id="lg"></div><div class="row ctl" id="ctl"><div class="seg" id="seg"><button class="bk" id="bk" aria-label="Exit search">${ic('left')}</button><select class="sel s" id="st" aria-label="State"></select><select class="sel s" id="lga" aria-label="Local Government Area"></select></div><label class="sbx" id="sbx"><button class="sb1" id="sbtn" aria-label="Search">${ic('search')}</button><input id="q" autocomplete="off" aria-label="Search"><button class="qx" id="qx" aria-label="Clear search">${ic('x', 16)}</button></label></div><div id="pb"></div></aside></section>`;
+  V.map = () => `<section class="mapv${hasLga() ? '' : ' nolga'}"><div class="snb" id="snb"></div><div class="mp" id="mp"><div class="zw" id="zw"><div class="mb" id="mb" role="group" aria-label="Map of Nigeria"><canvas id="mcv" width="736" height="654"></canvas><canvas id="mhv" width="736" height="654"></canvas><svg class="bd" viewBox="0 0 736 654" aria-hidden="true"><path class="b1" d="${BORDERS}"/><path class="b0" d="${OUTLINE}"/></svg><svg id="lgasvg" viewBox="0 0 736 654"></svg></div></div><button class="allst" id="allst" aria-label="Show the full map" title="Show the full map">${ic('fit', 18, '#181818')}Full map</button><div class="tip" id="tip" style="display:none">${tipSkeleton}</div><div class="lcard" id="lcard" hidden></div><div class="zoom"><button data-z="1" aria-label="Zoom in">${ic('add')}</button><hr><button data-z="-1" aria-label="Zoom out">${ic('rem')}</button></div></div><aside class="rp"><div id="bkbar"></div><div id="ph"></div><div id="lg"></div><div class="row ctl" id="ctl"><div class="seg" id="seg"><button class="bk" id="bk" aria-label="Exit search">${ic('left')}</button><select class="sel s" id="st" aria-label="State"></select><select class="sel s" id="lga" aria-label="Local Government Area"></select></div><label class="sbx" id="sbx"><button class="sb1" id="sbtn" aria-label="Search">${ic('search')}</button><input id="q" autocomplete="off" aria-label="Search"><button class="qx" id="qx" aria-label="Clear search">${ic('x', 16)}</button></label></div><div id="pb"></div></aside></section>`;
 
   /* ---------- tooltip: one persistent box that follows the cursor instantly and morphs its contents between areas ---------- */
   type Hov = { k: string; st: boolean; s: string } | null;
@@ -265,6 +265,10 @@ function main(): void {
         : `<div class="in"><h2 class="ttl" style="margin-top:8px">${st}</h2><p class="r14 sub" style="margin-top:12px">${tot} total votes · ${S.y}</p></div>`;
     $('#lg').innerHTML = `<div class="in">${legend()}</div>`;
     $('#back')?.addEventListener('click', back);
+    $('.mapv')?.classList.toggle('has-sel', S.view !== 'nat');
+    const sn = $('#snb');
+    if (sn) sn.innerHTML = S.view === 'nat' ? '' : `<button class="snb-b" id="snbk" aria-label="Go back">${ic('back', 20, 'currentColor')}</button><span class="snb-t ell">${st}${S.view === 'lga' && L ? ` <i>›</i> ${L}` : ''}</span>`;
+    $('#snbk')?.addEventListener('click', back);
   }
   function ctl() {
     const g = $('#seg'), st = $('#st'), lg = $('#lga'), L = hasLga();
@@ -327,6 +331,7 @@ function main(): void {
     const [, a, b] = location.hash.slice(1).split('/'); S.st = ''; S.lga = ''; S.view = 'nat';
     const st = a ? fullName(decodeURIComponent(a)) : ''; if (!st || !LG[st]) return;
     S.st = st; S.view = 'state'; const n = b ? decodeURIComponent(b) : ''; if (n && GEO[st].includes(n)) { S.lga = n; if (hasLga()) S.view = 'lga' }
+    if (n && hasLga() && GEO[st].includes(n)) { S.lga = n; S.view = 'lga' }
   }
   const reset = () => { S.st = ''; S.lga = ''; S.view = 'nat'; S.srch = 0; S.all = 0; S.z = 1; S.px = S.py = 0; HOV = null; tipKey = ''; $('#q').value = ''; all(); drawMap(); drawHover(); pushUrl() };
   const pick = (st: string, l = '') => { gt('select_state', { state: st.replace(/ State$/, '') }); S.st = st; S.lga = l; S.view = 'state'; S.all = 0; S.srch = 0; S.z = 1; S.px = S.py = 0; $('#q').value = ''; all(); drawMap(); pushUrl() };
@@ -460,15 +465,15 @@ function main(): void {
     const sv = $('#lgasvg') as SVGElement | null, zw = $('#zw') as HTMLElement | null, mp = $('#mp') as HTMLElement | null; if (!sv || !zw || !mp) return;
     const key = S.view !== 'nat' && LG[S.st] ? S.st : '', L = hasLga(), dk = key + '|' + S.y;
     if (drawn !== dk) { sv.innerHTML = key ? (L ? LG[key].map(([n, d]) => { const f = lgaFill(key, n); return `<path class="lp${f.nd ? ' nd' : ''}" data-n="${esc(n)}" d="${d}" style="fill:${f.fill}"/>` }).join('') : '') + `<path class="so" d="${SO[key]}"/>` : ''; drawn = dk }
-    sv.classList.toggle('lv', S.view === 'lga');
+    sv.classList.toggle('lv', !!S.lga);
     sv.querySelectorAll<SVGPathElement>('.lp').forEach(p => p.classList.toggle('on', p.dataset.n === S.lga));
     const on = sv.querySelector('.lp.on'), so = sv.querySelector('.so'); if (on && so && on.nextSibling !== so) sv.insertBefore(on, so);
     const cs = getComputedStyle(mp), cw = mp.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), ch = mp.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom), u = (zw.offsetWidth || 736) / 736;
     let sc = 1, cx = 368, cy = 327; const zoomLga = S.view === 'lga' && !!S.lga && L && !!key, bb = key ? (zoomLga ? lbb(key, S.lga) : BB[key]) : null;
     if (bb) { const f = zoomLga ? .55 : .8; sc = Math.min(zoomLga ? 40 : 14, Math.min(cw / ((bb[2] - bb[0]) * u), ch / ((bb[3] - bb[1]) * u)) * f); cx = (bb[0] + bb[2]) / 2; cy = (bb[1] + bb[3]) / 2 }
-    sc *= S.z; const lim = sc * 45; S.px = Math.max(-lim, Math.min(lim, S.px)); S.py = Math.max(-lim, Math.min(lim, S.py)); if (S.z <= 1) S.px = S.py = 0;
+    sc *= S.z; const lim = 60 * Math.max(1, S.z); S.px = Math.max(-lim, Math.min(lim, S.px)); S.py = Math.max(-lim, Math.min(lim, S.py)); if (S.view === 'nat' && S.z <= 1) S.px = S.py = 0;
     zw.style.transform = `translate(${(368 - cx * sc) / 7.36 + S.px}%,${(327 - cy * sc) / 6.54 + S.py}%) scale(${sc})`; zw.style.setProperty('--k', String(1 / sc));
-    mp.style.touchAction = S.z > 1 ? 'none' : 'pan-y';
+    mp.style.touchAction = (S.z > 1 || S.view !== 'nat') ? 'none' : 'pan-y';
     const ra = $('#allst'); if (ra) ra.disabled = S.view === 'nat' && S.z === 1 && !S.px && !S.py;
     document.documentElement.style.setProperty('--mapH', mp.offsetHeight + 'px');
   }
@@ -481,7 +486,7 @@ function main(): void {
       if (h?.k !== HOV?.k || h?.st !== HOV?.st) { HOV = h; drawHover() }
       tip(e.clientX, e.clientY); mp.style.cursor = h ? 'pointer' : '';
     };
-    mp.onpointerdown = (e: PointerEvent) => { if (e.button > 0 || S.z <= 1 || (e.target as HTMLElement).closest('.allst,.zoom')) return; drag = { id: e.pointerId, x: e.clientX, y: e.clientY, px: S.px, py: S.py, m: false } };
+    mp.onpointerdown = (e: PointerEvent) => { if (e.button > 0 || (S.view === 'nat' && S.z <= 1) || (e.target as HTMLElement).closest('.allst,.zoom')) return; drag = { id: e.pointerId, x: e.clientX, y: e.clientY, px: S.px, py: S.py, m: false } };
     mp.onpointerup = mp.onpointercancel = endDrag;
     mp.onpointermove = (e: PointerEvent) => {
       if (drag) {
@@ -493,10 +498,10 @@ function main(): void {
     mp.onpointerleave = () => { if (drag) return; HOV = null; drawHover(); tip() };
     mp.onclick = (e: MouseEvent) => {
       if (moved) { moved = false; return } const t = e.target as HTMLElement;
-      if (t.classList.contains('lp')) { const n = t.dataset.n!; if (S.lga === n && S.view === 'state') openLga(n); else { S.lga = n; if (S.view === 'lga') { S.view = 'lga' } ctl(); body(); hdr(); lcard(); sync(); tip(); if (!mob900.matches) $('.lr.on')?.scrollIntoView({ block: 'nearest' }); if (S.view === 'lga') pushUrl() } }
+      if (t.classList.contains('lp')) { const n = t.dataset.n!; if (S.lga === n && S.view === 'state') openLga(n); else { S.lga = n; if (S.view === 'lga') { S.px = S.py = 0 } ctl(); body(); hdr(); lcard(); sync(); tip(); if (!mob900.matches) $('.lr.on')?.scrollIntoView({ block: 'nearest' }); if (S.view === 'lga') pushUrl() } }
       else if (t.id === 'mcv' || t.id === 'mhv') { const l = labelAt(e); if (l) pick(KEYS[l - 1], '') }
     };
-    mp.querySelectorAll<HTMLElement>('[data-z]').forEach(b => b.onclick = () => { S.z = Math.max(.8, Math.min(3, S.z + .25 * +b.dataset.z!)); if (S.z <= 1) S.px = S.py = 0; sync() });
+    mp.querySelectorAll<HTMLElement>('[data-z]').forEach(b => b.onclick = () => { S.z = Math.max(.8, Math.min(3, S.z + .25 * +b.dataset.z!)); if (S.view === 'nat' && S.z <= 1) S.px = S.py = 0; sync() });
     HOV = null; drawn = ''; sync(); drawMap();
   }
 
