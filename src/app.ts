@@ -16,7 +16,7 @@ const FEEDBACK_ENDPOINT = 'https://formspree.io/f/mwlljqwj';
 
 const footerHtml = (): string => {
   const now = new Date().getFullYear(), yrs = now > CREATED ? `${CREATED}–${now}` : `${CREATED}`;
-  return `<footer class="ft"><div class="ft-in"><p class="ft-c">© ${yrs} nivo. All rights reserved.</p><nav class="ft-n" aria-label="Footer"><a href="#about">About</a><a href="#feedback">Feedback</a><a href="#method">Methodology</a></nav><p class="ft-b">Built &amp; designed by <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Praise</a> &amp; <a href="https://taiwoariyo.framer.website" target="_blank" rel="noopener noreferrer style="text-decoration: underline;"">Taiwo</a></p></div></footer>`;
+  return `<footer class="ft"><div class="ft-in"><p class="ft-c">© ${yrs} nivo. All rights reserved.</p><nav class="ft-n" aria-label="Footer"><a href="#about">About</a><a href="#feedback">Feedback</a><a href="#method">Methodology</a></nav><p class="ft-b">Built &amp; designed by <a href="https://praiseibe.com" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Praise</a> &amp; <a href="https://taiwoariyo.framer.website" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Taiwo</a></p></div></footer>`;
 };
 
 export function mount(): void {
