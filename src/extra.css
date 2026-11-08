@@ -971,23 +971,24 @@ body.is-map .ft {
     }
 }
 
+@media (max-width: 600px) {
+    .tw {
+        overflow-x: visible !important;
+    }
 
-.tw {
-    overflow-x: visible !important;
-}
+    .tw>div {
+        min-width: 0 !important;
+        width: 100%;
+    }
 
-.tw>div {
-    min-width: 0 !important;
-    width: 100%;
-}
+    .tw .tr {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
 
-.tw .tr {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) !important;
-}
-
-.tw .tr>div {
-    min-width: 0;
-    overflow-wrap: anywhere;
+    .tw .tr>div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
 }
 
 @media (max-width: 600px) {
