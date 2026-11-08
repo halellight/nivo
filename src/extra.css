@@ -1213,3 +1213,139 @@ html[data-theme=dark] .ap-reg {
         overflow-x: hidden;
     }
 }
+
+@media (max-width: 900px) {
+
+    input.sel.cbi,
+    .cbi,
+    #q,
+    .fb textarea,
+    .fb .fb-i {
+        font-size: 16px !important;
+    }
+}
+
+/* ===================== APPROVAL RATINGS ===================== */
+.ar-h {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 16px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--g200);
+}
+
+.ar-r {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 140px 84px;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--g100);
+}
+
+.ar-r:last-of-type {
+    border-bottom: 0;
+}
+
+.ar-b {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--g100);
+    overflow: hidden;
+}
+
+.ar-b i {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+}
+
+.ar-v {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.card>.note {
+    margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+    .ar-r {
+        grid-template-columns: minmax(0, 1fr) 64px 72px;
+        gap: 8px;
+    }
+}
+
+/* approval trend chart */
+.ar-chart {
+    margin: 12px 0 4px;
+}
+
+.ar-chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.ar-t {
+    font: 500 11px var(--font);
+    fill: var(--g500);
+}
+
+.ar-a {
+    font: 600 13px var(--font);
+    fill: var(--g900);
+}
+
+.ar-ln {
+    fill: none;
+    stroke: var(--blu500);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: ar-d 1.2s var(--ease) .1s forwards;
+}
+
+.ar-ar {
+    fill: color-mix(in srgb, var(--blu500) 12%, transparent);
+    opacity: 0;
+    animation: ar-f .8s var(--ease) .5s forwards;
+}
+
+@keyframes ar-d {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes ar-f {
+    to {
+        opacity: 1;
+    }
+}
+
+.ar-lg {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    margin-top: 8px;
+}
+
+.ar-k {
+    display: inline-block;
+    width: 16px;
+    height: 0;
+    border-top: 2.5px solid var(--blu500);
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.ar-k.d {
+    border-top: 2px dashed var(--g400);
+}

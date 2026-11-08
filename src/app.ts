@@ -83,6 +83,55 @@ const PVC_2023 = 93.3;                                       // % of registered 
 const turnout = (y: string) => CAST[y] / REG[y] * 100;
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
+// Approval ratings from NOIPolls: [label, source, approve %, disapprove % (optional)].
+const APPROVAL: { n: string; term: string; c: string; rows: [string, string, number, number?][] }[] = [
+  {
+    n: 'Bola Tinubu', term: '2023 – present', c: 'var(--blu500)', rows: [
+      ['May 2026 (3 years in office)', 'NOIPolls (conducted by EBDA)', 30.2, 47.5],
+    ]
+  },
+  {
+    n: 'Muhammadu Buhari', term: '2015 – 2023', c: 'var(--blu500)', rows: [
+      ['Oct 2015 (highest)', 'NOIPolls', 80],
+      ['Apr 2016 (lowest)', 'NOIPolls', 42],
+      ['Jun 2015 – May 2016 (first-year average)', 'NOIPolls', 64],
+      ['Mar 2017', 'NOIPolls', 55],
+    ]
+  },
+  {
+    n: 'Goodluck Jonathan', term: '2010 – 2015', c: 'var(--red500)', rows: [
+      ['May 2013', 'NOIPolls', 44],
+      ['Sep 2014 (peak)', 'NOIPolls', 74],
+      ['Oct 2014', 'NOIPolls', 60],
+      ['Jan 2015', 'NOIPolls', 55],
+    ]
+  },
+];
+
+// Tinubu monthly approve + strongly approve (%), NOIPolls. Index 0 = Jun 2023. Months the chart left unlabelled (Oct 2023, Sep 2024, Dec 2025, Apr 2026) are skipped.
+const TINUBU_NOI: [number, number][] = [[0, 43], [1, 24], [2, 23], [3, 27], [5, 32], [6, 30], [7, 35], [8, 11], [9, 25], [10, 28], [11, 24], [12, 17], [13, 19], [14, 18], [16, 16], [17, 17], [18, 22], [19, 36], [20, 41], [21, 40], [22, 36], [23, 38], [24, 36], [25, 44], [26, 46], [27, 51], [28, 46], [29, 41], [31, 53], [32, 49], [33, 45], [35, 36], [36, 36], [37, 54], [38, 49], [39, 41]];
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const monLabel = (i: number) => `${MON[(5 + i) % 12]} ${2023 + Math.floor((5 + i) / 12)}`;
+const approvalTrend = (): string => {
+  const W = 480, H = 220, L = 32, R = 12, T = 14, B = 28, N = 39, MAX = 60, AVG = 34.1;
+  const x = (i: number) => L + i / N * (W - L - R), y = (v: number) => T + (1 - v / MAX) * (H - T - B);
+  const pts = TINUBU_NOI.map(([i, v]) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`), line = 'M' + pts.join('L');
+  const area = `${line}L${x(N).toFixed(1)},${y(0)}L${x(0).toFixed(1)},${y(0)}Z`;
+  const grid = [0, 20, 40, 60].map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--g100)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" class="ar-t">${v}%</text>`).join('');
+  const ticks = [[0, 'Jun 2023'], [7, '2024'], [19, '2025'], [31, '2026']].map(([i, t]) => `<text x="${x(+i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : 'middle'}" class="ar-t">${t}</text>`).join('');
+  const hit = TINUBU_NOI.map(([i, v]) => `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="7" fill="transparent"><title>${monLabel(i)}: ${v}%</title></circle>`).join('');
+  const last = TINUBU_NOI[TINUBU_NOI.length - 1];
+  return `<div class="ar-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tinubu monthly approval rating, June 2023 to September 2026">
+    ${grid}<line x1="${L}" x2="${W - R}" y1="${y(AVG)}" y2="${y(AVG)}" stroke="var(--g400)" stroke-dasharray="4 4"/>
+    <path d="${area}" class="ar-ar"/><path d="${line}" class="ar-ln" pathLength="1"/>
+    <circle cx="${x(last[0])}" cy="${y(last[1])}" r="4" fill="var(--blu500)" stroke="var(--white,#fff)" stroke-width="2"/>
+    <text x="${x(37)}" y="${y(54) - 9}" text-anchor="middle" class="ar-a">54%</text>
+    <text x="${x(8)}" y="${y(11) + 17}" text-anchor="middle" class="ar-a">11%</text>
+    <text x="${x(39)}" y="${y(41) + 17}" text-anchor="end" class="ar-a">41%</text>
+    ${ticks}${hit}</svg>
+    <p class="xs sub ar-lg"><i class="ar-k"></i>Approve / strongly approve <i class="ar-k d"></i>Average 34.1%</p></div>`;
+};
+
 function main(): void {
   /* ---------- parties & candidates differ per election ---------- */
   const PTY: Record<string, any> = {
@@ -223,7 +272,7 @@ function main(): void {
   /* views */
   const V: Record<string, () => string> = {};
   const tipSkeleton = `<h4 class="md ell t-nm"></h4><p class="xs sub t-sub" style="padding:4px 16px 8px"></p><div class="tt xsb sub t-h"><span class="c1">Party</span><span class="c2">Margin</span><span class="c3">Votes</span></div><hr class="t-h">${[0, 1].map(k => `<div class="tt sm t-r t-r${k}"><span class="c1 row" style="gap:6px"><i class="dot"></i><b class="t-p"></b></span><span class="c2"></span><span class="c3"></span></div>`).join('')}`;
-  V.map = () => `<section class="mapv${hasLga() ? '' : ' nolga'}">><div class="mp" id="mp"><div class="zw" id="zw"><div class="mb" id="mb" role="group" aria-label="Map of Nigeria"><canvas id="mcv" width="736" height="654"></canvas><canvas id="mhv" width="736" height="654"></canvas><svg class="bd" viewBox="0 0 736 654" aria-hidden="true"><path class="b1" d="${BORDERS}"/><path class="b0" d="${OUTLINE}"/></svg><svg id="lgasvg" viewBox="0 0 736 654"></svg></div></div><button class="allst" id="allst" aria-label="Show the full map" title="Show the full map">${ic('fit', 18, '#181818')}Full map</button><div class="tip" id="tip" style="display:none">${tipSkeleton}</div><div class="lcard" id="lcard" hidden></div><div class="zoom"><button data-z="1" aria-label="Zoom in">${ic('add')}</button><hr><button data-z="-1" aria-label="Zoom out">${ic('rem')}</button></div></div><aside class="rp"><div id="bkbar"></div><div id="ph"></div><div id="lg"></div><div class="row ctl" id="ctl"><div class="seg" id="seg"><button class="bk" id="bk" aria-label="Exit search">${ic('left')}</button><select class="sel s" id="st" aria-label="State"></select><select class="sel s" id="lga" aria-label="Local Government Area"></select></div><label class="sbx" id="sbx"><button class="sb1" id="sbtn" aria-label="Search">${ic('search')}</button><input id="q" autocomplete="off" aria-label="Search"><button class="qx" id="qx" aria-label="Clear search">${ic('x', 16)}</button></label></div><div id="pb"></div></aside></section>`;
+  V.map = () => `<section class="mapv${hasLga() ? '' : ' nolga'}"><div class="mp" id="mp"><div class="zw" id="zw"><div class="mb" id="mb" role="group" aria-label="Map of Nigeria"><canvas id="mcv" width="736" height="654"></canvas><canvas id="mhv" width="736" height="654"></canvas><svg class="bd" viewBox="0 0 736 654" aria-hidden="true"><path class="b1" d="${BORDERS}"/><path class="b0" d="${OUTLINE}"/></svg><svg id="lgasvg" viewBox="0 0 736 654"></svg></div></div><button class="allst" id="allst" aria-label="Show the full map" title="Show the full map">${ic('fit', 18, '#181818')}Full map</button><div class="tip" id="tip" style="display:none">${tipSkeleton}</div><div class="lcard" id="lcard" hidden></div><div class="zoom"><button data-z="1" aria-label="Zoom in">${ic('add')}</button><hr><button data-z="-1" aria-label="Zoom out">${ic('rem')}</button></div></div><aside class="rp"><div id="bkbar"></div><div id="ph"></div><div id="lg"></div><div class="row ctl" id="ctl"><div class="seg" id="seg"><button class="bk" id="bk" aria-label="Exit search">${ic('left')}</button><select class="sel s" id="st" aria-label="State"></select><select class="sel s" id="lga" aria-label="Local Government Area"></select></div><label class="sbx" id="sbx"><button class="sb1" id="sbtn" aria-label="Search">${ic('search')}</button><input id="q" autocomplete="off" aria-label="Search"><button class="qx" id="qx" aria-label="Clear search">${ic('x', 16)}</button></label></div><div id="pb"></div></aside></section>`;
 
   /* ---------- tooltip: one persistent box that follows the cursor instantly and morphs its contents between areas ---------- */
   type Hov = { k: string; st: boolean; s: string } | null;
@@ -348,9 +397,10 @@ function main(): void {
     const nat = votes('nat'), t = sum(nat) || 1, L = hasLga(), wins = L ? LG_WINS_2023 : stateWins(), wt = sum(wins) || 1, reg = REG[S.y], vot = CAST[S.y], tn = +turnout(S.y).toFixed(2);
     const ext = S.y === '2023' ? [['Most voter turnout', 'Jigawa State', 40.61, 'red'], ['Least voter turnout', 'Rivers State', 15.66, 'blu']] : [];
     const newsCard = `<div class="card" style="flex-basis:100%;"><div class="row" style="justify-content:space-between;margin-bottom:12px;"><p class="card-t">2027 Election Updates</p><a href="https://onyeakuko.online" target="_blank" rel="noopener noreferrer" class="xs sub" style="text-decoration:none;display:flex;align-items:center;gap:4px;">Powered by OnyeAkụkọ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a></div><div id="news-feed" style="display:flex;flex-direction:column;gap:0;"><p class="sm sub" style="padding:12px 0;">Fetching latest reports...</p></div></div>`;
+    const approvalCard = `<div class="card" style="flex-basis:100%;"><p class="card-t">Presidential Approval Ratings</p>${APPROVAL.map(p => `<div class="ar-h"><p class="md">${p.n}</p><p class="xs sub">${p.term}</p></div>${p.n === 'Bola Tinubu' ? approvalTrend() : ''}${p.rows.map(r => `<div class="ar-r"><div class="fl"><p class="sm">${r[0]}</p><p class="xs sub">${r[1]}</p></div><div class="ar-b"><i style="width:${r[2]}%;background:${p.c}"></i></div><div class="ar-v"><p class="md">${r[2]}%</p>${r[3] != null ? `<p class="xs sub">${r[3]}% disapprove</p>` : ''}</div></div>`).join('')}`).join('')}<div class="note sm">${layers}<p>All figures are from NOIPolls. Survey dates, methods and sample sizes vary across the series, so treat the numbers as rough direction. No approval figures found for Buhari after 2017. Source: noi-polls.com.</p></div></div>`;
     return `<div class="page"><div class="cols pad" style="padding-left:20px;padding-right:20px;grid-template-columns:repeat(${nat.length},1fr)">${nat.map((v, i) => { const p = v / t * 100; return `<div class="col"><div><div class="hd2"><p class="mdb">${P[i].k}</p><p class="sm sub">${mob.matches ? +(v / 1e6).toFixed(2) + 'M' : fmt(v)}</p></div><p class="pc" data-n="${p}" data-d="1" data-s="%">0%</p>${i < 3 && P[i].wiki ? `<p class="xs sub" style="margin-bottom:6px;padding-left:12px;">${P[i].w}</p>` : ''}<div class="grow" data-h="${(p * 6.28).toFixed(1)}px" style="height:0;background:${col(i)}"></div></div></div>` }).join('')}</div>
       <div class="cards"><div class="card"><p class="card-t">${L ? 'Party by Local Government' : 'Party by State'}</p><div><p class="h5" data-n="${wt}" data-c="1">0</p><p class="sm sub">${L ? 'Local Government Areas' : 'States (incl. FCT)'}</p></div><div class="stk" style="margin:8px 0">${wins.map((n, i) => `<div class="grow" data-w="${n / wt * 100}%" style="width:0;background:${col(i)}"></div>`).join('')}</div>${wins.map((n, i) => `<div class="cl" style="--c:${col(i)}"><div class="fl"><p class="md">${P[i].k}</p><p class="xs sub">${P[i].n}</p></div><p class="md" data-n="${n}" data-c="1">0</p></div>`).join('')}</div>
-      <div class="card"><p class="card-t">Voting Turnout</p><div class="row" style="gap:12px;flex-wrap:wrap"><div class="stat" style="--c:var(--g100)"><div><p class="h5" data-n="${reg}" data-c="1">0</p><p class="sm sub">registered voters</p></div></div><div class="stat" style="--c:var(--org500)"><div><p class="h5" data-n="${vot}" data-c="1">0</p><p class="sm sub">voted</p></div></div></div><div class="trk">${[0, 25, 50, 75, 100].map(x => `<i style="left:${x === 100 ? 'calc(100% - 1px)' : x + '%'}"></i>`).join('')}<div class="fill"><b class="grow" style="width:0" data-w="${tn}%"></b></div></div>${ext.map(r => `<div class="cl b0" style="--c:var(--${r[3]}500);padding:4px 0"><div class="fl"><p class="xs sub">${r[0]}</p><p class="md">${r[1]}</p></div><p class="md">${r[2]}%</p></div>`).join('')}<div class="note sm">${layers}<p>${tn}% of registered voters cast a ballot in the ${S.y} General Elections${ext.length ? `, with ${ext[0][1]} having the most turnout and ${ext[1][1]} the least` : ''}.</p></div></div>${newsCard}</div></div>`;
+      <div class="card"><p class="card-t">Voting Turnout</p><div class="row" style="gap:12px;flex-wrap:wrap"><div class="stat" style="--c:var(--g100)"><div><p class="h5" data-n="${reg}" data-c="1">0</p><p class="sm sub">registered voters</p></div></div><div class="stat" style="--c:var(--org500)"><div><p class="h5" data-n="${vot}" data-c="1">0</p><p class="sm sub">voted</p></div></div></div><div class="trk">${[0, 25, 50, 75, 100].map(x => `<i style="left:${x === 100 ? 'calc(100% - 1px)' : x + '%'}"></i>`).join('')}<div class="fill"><b class="grow" style="width:0" data-w="${tn}%"></b></div></div>${ext.map(r => `<div class="cl b0" style="--c:var(--${r[3]}500);padding:4px 0"><div class="fl"><p class="xs sub">${r[0]}</p><p class="md">${r[1]}</p></div><p class="md">${r[2]}%</p></div>`).join('')}<div class="note sm">${layers}<p>${tn}% of registered voters cast a ballot in the ${S.y} General Elections${ext.length ? `, with ${ext[0][1]} having the most turnout and ${ext[1][1]} the least` : ''}.</p></div></div>${approvalCard}${newsCard}</div></div>`;
   };
   const ph = (t: string, r = '') => `<div class="ph"><h1 class="ttl">${t}</h1>${r}</div>`;
   V.compare = () => {
