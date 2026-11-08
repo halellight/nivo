@@ -806,55 +806,19 @@ body.is-map .ft {
         bottom: 8px;
     }
 
-    .snb {
-        order: 3;
-        display: none;
+    .mapv.has-sel #ph {
         position: sticky;
         top: 0;
         z-index: 25;
-        align-items: center;
-        gap: 8px;
-        height: 44px;
-        padding: 0 12px;
         background: var(--header-bg, #fff);
-        border-bottom: 1px solid var(--g100);
-        font: 600 16px/20px var(--font);
-        color: var(--g900);
-    }
-
-    .mapv.has-sel .snb {
-        display: flex;
+        padding-bottom: 8px;
     }
 
     .mapv.has-sel .mp {
-        top: 44px;
-    }
-
-    /* map sticks just under the name bar */
-    .snb-b {
-        all: unset;
-        cursor: pointer;
-        display: grid;
-        place-items: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-    }
-
-    .snb-t {
-        min-width: 0;
-        flex: 1;
-    }
-
-    .snb-t i {
-        font-style: normal;
-        color: var(--g500);
+        top: var(--phh, 0px);
     }
 }
 
-.snb {
-    display: none;
-}
 
 @media (min-width: 601px) and (max-width: 900px) {
     .mp {
@@ -1007,21 +971,32 @@ body.is-map .ft {
     }
 }
 
+
+.tw {
+    overflow-x: visible !important;
+}
+
+.tw>div {
+    min-width: 0 !important;
+    width: 100%;
+}
+
+.tw .tr {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+
+.tw .tr>div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 @media (max-width: 600px) {
-    .tw>div {
-        min-width: 560px !important;
-    }
-
-    .cbi {
-        font-size: 16px;
+    .tw .tr>div {
+        font-size: 13px;
+        padding-inline: 8px;
     }
 }
 
-#lgasvg.lv .lp:not(.on) {
-    opacity: .25;
-}
-
-/* was .5 */
 .apx {
     position: relative;
     height: 350px;
@@ -1179,4 +1154,61 @@ html[data-theme=dark] .ap-reg {
 
 .fb-err {
     color: var(--red600, #c0392b);
+}
+
+@media (max-width: 900px) {
+    .rp .tbl {
+        --c1w: 78px;
+        --c2w: 76px;
+        --c3w: 30px;
+        max-width: 100%;
+        box-sizing: border-box;
+        gap: 4px;
+    }
+
+    .rp .tbl>span {
+        min-width: 0;
+    }
+
+    .rp .tbl>span:first-child {
+        flex: 1 1 0 !important;
+        overflow-wrap: anywhere;
+        line-height: 18px;
+        padding-block: 8px;
+    }
+
+    .rp .tbl>span:nth-child(2) {
+        flex: none;
+        gap: 6px !important;
+    }
+
+    .rp .tbl>span:nth-child(2) .xs {
+        display: none;
+    }
+
+    /* hide the candidate surname under the party */
+    .rp .tbl>span:nth-child(3) {
+        flex: none;
+        font-size: 13px;
+        padding-inline: 6px;
+        text-align: center;
+    }
+
+    .rp .tbl>span:nth-child(3) .xs {
+        font-size: 11px;
+        line-height: 14px;
+    }
+
+    .rp .tbl .go {
+        width: 26px;
+        height: 26px;
+    }
+
+    .rp .tbl.th {
+        font-size: 12px;
+    }
+
+    #pb {
+        overflow-x: hidden;
+    }
 }

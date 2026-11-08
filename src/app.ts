@@ -223,7 +223,7 @@ function main(): void {
   /* views */
   const V: Record<string, () => string> = {};
   const tipSkeleton = `<h4 class="md ell t-nm"></h4><p class="xs sub t-sub" style="padding:4px 16px 8px"></p><div class="tt xsb sub t-h"><span class="c1">Party</span><span class="c2">Margin</span><span class="c3">Votes</span></div><hr class="t-h">${[0, 1].map(k => `<div class="tt sm t-r t-r${k}"><span class="c1 row" style="gap:6px"><i class="dot"></i><b class="t-p"></b></span><span class="c2"></span><span class="c3"></span></div>`).join('')}`;
-  V.map = () => `<section class="mapv${hasLga() ? '' : ' nolga'}"><div class="snb" id="snb"></div><div class="mp" id="mp"><div class="zw" id="zw"><div class="mb" id="mb" role="group" aria-label="Map of Nigeria"><canvas id="mcv" width="736" height="654"></canvas><canvas id="mhv" width="736" height="654"></canvas><svg class="bd" viewBox="0 0 736 654" aria-hidden="true"><path class="b1" d="${BORDERS}"/><path class="b0" d="${OUTLINE}"/></svg><svg id="lgasvg" viewBox="0 0 736 654"></svg></div></div><button class="allst" id="allst" aria-label="Show the full map" title="Show the full map">${ic('fit', 18, '#181818')}Full map</button><div class="tip" id="tip" style="display:none">${tipSkeleton}</div><div class="lcard" id="lcard" hidden></div><div class="zoom"><button data-z="1" aria-label="Zoom in">${ic('add')}</button><hr><button data-z="-1" aria-label="Zoom out">${ic('rem')}</button></div></div><aside class="rp"><div id="bkbar"></div><div id="ph"></div><div id="lg"></div><div class="row ctl" id="ctl"><div class="seg" id="seg"><button class="bk" id="bk" aria-label="Exit search">${ic('left')}</button><select class="sel s" id="st" aria-label="State"></select><select class="sel s" id="lga" aria-label="Local Government Area"></select></div><label class="sbx" id="sbx"><button class="sb1" id="sbtn" aria-label="Search">${ic('search')}</button><input id="q" autocomplete="off" aria-label="Search"><button class="qx" id="qx" aria-label="Clear search">${ic('x', 16)}</button></label></div><div id="pb"></div></aside></section>`;
+  V.map = () => `<section class="mapv${hasLga() ? '' : ' nolga'}">><div class="mp" id="mp"><div class="zw" id="zw"><div class="mb" id="mb" role="group" aria-label="Map of Nigeria"><canvas id="mcv" width="736" height="654"></canvas><canvas id="mhv" width="736" height="654"></canvas><svg class="bd" viewBox="0 0 736 654" aria-hidden="true"><path class="b1" d="${BORDERS}"/><path class="b0" d="${OUTLINE}"/></svg><svg id="lgasvg" viewBox="0 0 736 654"></svg></div></div><button class="allst" id="allst" aria-label="Show the full map" title="Show the full map">${ic('fit', 18, '#181818')}Full map</button><div class="tip" id="tip" style="display:none">${tipSkeleton}</div><div class="lcard" id="lcard" hidden></div><div class="zoom"><button data-z="1" aria-label="Zoom in">${ic('add')}</button><hr><button data-z="-1" aria-label="Zoom out">${ic('rem')}</button></div></div><aside class="rp"><div id="bkbar"></div><div id="ph"></div><div id="lg"></div><div class="row ctl" id="ctl"><div class="seg" id="seg"><button class="bk" id="bk" aria-label="Exit search">${ic('left')}</button><select class="sel s" id="st" aria-label="State"></select><select class="sel s" id="lga" aria-label="Local Government Area"></select></div><label class="sbx" id="sbx"><button class="sb1" id="sbtn" aria-label="Search">${ic('search')}</button><input id="q" autocomplete="off" aria-label="Search"><button class="qx" id="qx" aria-label="Clear search">${ic('x', 16)}</button></label></div><div id="pb"></div></aside></section>`;
 
   /* ---------- tooltip: one persistent box that follows the cursor instantly and morphs its contents between areas ---------- */
   type Hov = { k: string; st: boolean; s: string } | null;
@@ -266,9 +266,7 @@ function main(): void {
     $('#lg').innerHTML = `<div class="in">${legend()}</div>`;
     $('#back')?.addEventListener('click', back);
     $('.mapv')?.classList.toggle('has-sel', S.view !== 'nat');
-    const sn = $('#snb');
-    if (sn) sn.innerHTML = S.view === 'nat' ? '' : `<button class="snb-b" id="snbk" aria-label="Go back">${ic('back', 20, 'currentColor')}</button><span class="snb-t ell">${st}${S.view === 'lga' && L ? ` <i>›</i> ${L}` : ''}</span>`;
-    $('#snbk')?.addEventListener('click', back);
+
   }
   function ctl() {
     const g = $('#seg'), st = $('#st'), lg = $('#lga'), L = hasLga();
@@ -366,7 +364,7 @@ function main(): void {
         rw = (l: string, a: number, b2: number, dot?: string | number, fm?: (n: number) => string) => `<div class="tr"><div>${dot ? `<i class="dot" style="background:${dot}"></i>` : ''}${l}</div>${f(a, b2, fm)}</div>`,
         ta = sum(A), tb = sum(B), mg = (v: number[]) => { const s = rk(v); return s[1] ? (s[0][0] - s[1][0]) / (sum(v) || 1) * 100 : 0 };
       const nt = turnout(S.y) / 100, ra = Math.round(ta / nt), rb = Math.round(tb / nt), ma = Math.round(ta * 0.55), mb = Math.round(tb * 0.55);
-      b = `<div class="tw pad" style="padding:0"><div style="min-width:720px"><div class="tr h"><div>Metric</div><div>${nm2(S.c1)}</div><div>${nm2(S.c2)}</div></div>${L ? `<div class="tr mrow"><div>State</div><div>${stt(S.c1)}</div><div>${stt(S.c2)}</div></div>` : ''}${P.map((p, i) => rw(p.k + ' votes', A[i], B[i], col(i))).join('')}<div class="tr sep"><div>Total votes</div>${f(ta, tb)}</div>${rw('Winning margin', +mg(A).toFixed(1), +mg(B).toFixed(1), 0, x => x.toFixed(1))}<div class="gap"></div>${rw('Registered voters (est.)', ra, rb)}${rw('Male voters (est.)', ma, mb)}${rw('Female voters (est.)', ta - ma, tb - mb)}</div></div>${ta + tb ? `<div class="note sm pad" style="margin:16px 20px 0">${layers}<p>${nm2(ta > tb ? S.c1 : S.c2)} recorded ${fmt(Math.max(ta, tb))} votes against ${fmt(Math.min(ta, tb))} in ${nm2(ta > tb ? S.c2 : S.c1)}, with ${P[rk(ta > tb ? A : B)[0][1]].k} leading.</p></div>` : note('One of these areas has no result data in our table.', 'pad')}`;
+      b = `<div class="tw pad" style="padding:0"><div class="tr h"><div>Metric</div><div>${nm2(S.c1)}</div><div>${nm2(S.c2)}</div></div>${L ? `<div class="tr mrow"><div>State</div><div>${stt(S.c1)}</div><div>${stt(S.c2)}</div></div>` : ''}${P.map((p, i) => rw(p.k + ' votes', A[i], B[i], col(i))).join('')}<div class="tr sep"><div>Total votes</div>${f(ta, tb)}</div>${rw('Winning margin', +mg(A).toFixed(1), +mg(B).toFixed(1), 0, x => x.toFixed(1))}<div class="gap"></div>${rw('Registered voters (est.)', ra, rb)}${rw('Male voters (est.)', ma, mb)}${rw('Female voters (est.)', ta - ma, tb - mb)}</div></div>${ta + tb ? `<div class="note sm pad" style="margin:16px 20px 0">${layers}<p>${nm2(ta > tb ? S.c1 : S.c2)} recorded ${fmt(Math.max(ta, tb))} votes against ${fmt(Math.min(ta, tb))} in ${nm2(ta > tb ? S.c2 : S.c1)}, with ${P[rk(ta > tb ? A : B)[0][1]].k} leading.</p></div>` : note('One of these areas has no result data in our table.', 'pad')}`;
     }
     return `<div class="page">${ph(L ? 'LGA Comparison' : 'State Comparison', `<div class="pair">${combo('c1', items, S.c1, `Choose ${what} 1`)}${combo('c2', items, S.c2, `Choose ${what} 2`)}</div>`)}${b}</div>`;
   };
@@ -467,15 +465,18 @@ function main(): void {
     if (drawn !== dk) { sv.innerHTML = key ? (L ? LG[key].map(([n, d]) => { const f = lgaFill(key, n); return `<path class="lp${f.nd ? ' nd' : ''}" data-n="${esc(n)}" d="${d}" style="fill:${f.fill}"/>` }).join('') : '') + `<path class="so" d="${SO[key]}"/>` : ''; drawn = dk }
     sv.classList.toggle('lv', !!S.lga);
     sv.querySelectorAll<SVGPathElement>('.lp').forEach(p => p.classList.toggle('on', p.dataset.n === S.lga));
-    const on = sv.querySelector('.lp.on'), so = sv.querySelector('.so'); if (on && so && on.nextSibling !== so) sv.insertBefore(on, so);
-    const cs = getComputedStyle(mp), cw = mp.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), ch = mp.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom), u = (zw.offsetWidth || 736) / 736;
+    const dim = !!S.lga;
+    sv.classList.toggle('lv', dim);
+    sv.querySelectorAll<SVGPathElement>('.lp').forEach(p => { const on = p.dataset.n === S.lga; p.classList.toggle('on', on); p.style.setProperty('opacity', dim && !on ? '.3' : '1', 'important') }); const cs = getComputedStyle(mp), cw = mp.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), ch = mp.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom), u = (zw.offsetWidth || 736) / 736;
     let sc = 1, cx = 368, cy = 327; const zoomLga = S.view === 'lga' && !!S.lga && L && !!key, bb = key ? (zoomLga ? lbb(key, S.lga) : BB[key]) : null;
     if (bb) { const f = zoomLga ? .55 : .8; sc = Math.min(zoomLga ? 40 : 14, Math.min(cw / ((bb[2] - bb[0]) * u), ch / ((bb[3] - bb[1]) * u)) * f); cx = (bb[0] + bb[2]) / 2; cy = (bb[1] + bb[3]) / 2 }
     sc *= S.z; const lim = 60 * Math.max(1, S.z); S.px = Math.max(-lim, Math.min(lim, S.px)); S.py = Math.max(-lim, Math.min(lim, S.py)); if (S.view === 'nat' && S.z <= 1) S.px = S.py = 0;
     zw.style.transform = `translate(${(368 - cx * sc) / 7.36 + S.px}%,${(327 - cy * sc) / 6.54 + S.py}%) scale(${sc})`; zw.style.setProperty('--k', String(1 / sc));
-    mp.style.touchAction = (S.z > 1 || S.view !== 'nat') ? 'none' : 'pan-y';
+    mp.style.touchAction = (!mob900.matches && (S.z > 1 || S.view !== 'nat')) ? 'none' : 'pan-y';
+    if (mob900.matches) S.px = S.py = 0;
     const ra = $('#allst'); if (ra) ra.disabled = S.view === 'nat' && S.z === 1 && !S.px && !S.py;
     document.documentElement.style.setProperty('--mapH', mp.offsetHeight + 'px');
+    const phEl = $('#ph'); document.documentElement.style.setProperty('--phh', S.view === 'nat' || !phEl ? '0px' : phEl.offsetHeight + 'px');
   }
   function bindMap() {
     const mp = $('#mp') as HTMLElement; let drag: { id: number; x: number; y: number; px: number; py: number; m: boolean } | null = null, moved = false, last: PointerEvent | null = null, raf = 0;
@@ -486,7 +487,7 @@ function main(): void {
       if (h?.k !== HOV?.k || h?.st !== HOV?.st) { HOV = h; drawHover() }
       tip(e.clientX, e.clientY); mp.style.cursor = h ? 'pointer' : '';
     };
-    mp.onpointerdown = (e: PointerEvent) => { if (e.button > 0 || (S.view === 'nat' && S.z <= 1) || (e.target as HTMLElement).closest('.allst,.zoom')) return; drag = { id: e.pointerId, x: e.clientX, y: e.clientY, px: S.px, py: S.py, m: false } };
+    mp.onpointerdown = (e: PointerEvent) => { if (mob900.matches || e.button > 0 || (S.view === 'nat' && S.z <= 1) || (e.target as HTMLElement).closest('.allst,.zoom')) return; drag = { id: e.pointerId, x: e.clientX, y: e.clientY, px: S.px, py: S.py, m: false } };
     mp.onpointerup = mp.onpointercancel = endDrag;
     mp.onpointermove = (e: PointerEvent) => {
       if (drag) {
