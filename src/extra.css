@@ -1225,46 +1225,103 @@ html[data-theme=dark] .ap-reg {
     }
 }
 
-/* ===================== APPROVAL RATINGS ===================== */
-.ar-h {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 16px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--g200);
+
+
+/* ===== insights: consistent spacing between sections ===== */
+.page>.cards.ins {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 24px;
+    row-gap: 16px;
 }
 
-.ar-r {
+.page>.cards.ins:last-child {
+    margin-bottom: 40px;
+}
+
+/* ===== candidate approval (net favourability) ===== */
+.nf-r {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 140px 84px;
+    grid-template-columns: minmax(0, 200px) minmax(0, 1fr) 64px;
     align-items: center;
-    gap: 12px;
-    padding: 10px 0;
+    gap: 16px;
+    padding: 12px 0;
     border-bottom: 1px solid var(--g100);
 }
 
-.ar-r:last-of-type {
+.nf-r:last-of-type {
     border-bottom: 0;
 }
 
-.ar-b {
-    height: 8px;
-    border-radius: 4px;
+.nf-b {
+    position: relative;
+    height: 10px;
+    border-radius: 5px;
     background: var(--g100);
-    overflow: hidden;
 }
 
-.ar-b i {
-    display: block;
-    height: 100%;
-    border-radius: 4px;
+.nf-b::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    bottom: -4px;
+    width: 1px;
+    background: var(--g400);
 }
 
-.ar-v {
+.nf-b i {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    transition: width .9s var(--ease);
+}
+
+.nf-b i.pos {
+    left: 50%;
+    background: var(--grn500);
+    border-radius: 0 5px 5px 0;
+}
+
+.nf-b i.neg {
+    right: 50%;
+    background: var(--red500);
+    border-radius: 5px 0 0 5px;
+}
+
+.nf-v {
     text-align: right;
-    white-space: nowrap;
+    font: 600 15px/20px var(--font);
+}
+
+.nf-v.pos {
+    color: var(--grn800);
+}
+
+.nf-v.neg {
+    color: var(--red500);
+}
+
+.ki-g {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.ki {
+    padding: 14px 16px;
+    border: 1px solid var(--g100);
+    border-radius: 12px;
+    background: var(--g50);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ki b {
+    font: 600 22px/28px var(--font);
+    color: var(--g900);
 }
 
 .card>.note {
@@ -1272,80 +1329,13 @@ html[data-theme=dark] .ap-reg {
 }
 
 @media (max-width: 600px) {
-    .ar-r {
-        grid-template-columns: minmax(0, 1fr) 64px 72px;
-        gap: 8px;
+    .nf-r {
+        grid-template-columns: minmax(0, 1fr) 56px;
+        gap: 8px 12px;
     }
-}
 
-/* approval trend chart */
-.ar-chart {
-    margin: 12px 0 4px;
-}
-
-.ar-chart svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-}
-
-.ar-t {
-    font: 500 11px var(--font);
-    fill: var(--g500);
-}
-
-.ar-a {
-    font: 600 13px var(--font);
-    fill: var(--g900);
-}
-
-.ar-ln {
-    fill: none;
-    stroke: var(--blu500);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: ar-d 1.2s var(--ease) .1s forwards;
-}
-
-.ar-ar {
-    fill: color-mix(in srgb, var(--blu500) 12%, transparent);
-    opacity: 0;
-    animation: ar-f .8s var(--ease) .5s forwards;
-}
-
-@keyframes ar-d {
-    to {
-        stroke-dashoffset: 0;
+    .nf-r .nf-b {
+        grid-column: 1 / -1;
+        order: 3;
     }
-}
-
-@keyframes ar-f {
-    to {
-        opacity: 1;
-    }
-}
-
-.ar-lg {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 16px;
-    margin-top: 8px;
-}
-
-.ar-k {
-    display: inline-block;
-    width: 16px;
-    height: 0;
-    border-top: 2.5px solid var(--blu500);
-    margin-right: 6px;
-    vertical-align: middle;
-}
-
-.ar-k.d {
-    border-top: 2px dashed var(--g400);
 }

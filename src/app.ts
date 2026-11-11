@@ -108,29 +108,50 @@ const APPROVAL: { n: string; term: string; c: string; rows: [string, string, num
   },
 ];
 
+// SBM Intelligence, Voter Sentiment Tracker Wave 1 (June 2026). Fieldwork: 3rd week of May 2026, 829 voters, 8 states, face-to-face, unweighted.
+const SBM_URL = 'https://www.sbmintel.com/wp-content/uploads/2026/06/202606_VST-W1.pdf';
+const CAND_NET: { n: string; p: string; v: number }[] = [
+  { n: 'Peter Obi', p: 'NDC', v: 58.3 },
+  { n: 'Rabiu Kwankwaso', p: 'NDC', v: -21.6 },
+  { n: 'Atiku Abubakar', p: 'ADC', v: -31.8 },
+  { n: 'Rotimi Amaechi', p: 'ADC', v: -46.7 },
+  { n: 'Bola Tinubu', p: 'APC', v: -58.5 },
+];
+const KEY_INSIGHTS: [string, string, string][] = [
+  ['~80%', 'say the country is heading the wrong way', 'Above 88% in every zone except the Southwest (60.3%) and Northeast (63.5%).'],
+  ['1.14 – 2.02', 'Tinubu’s performance rating by zone', 'Average of five areas (inflation, taxation, security, jobs, power) on a 1–4 scale. Lowest in the Southeast, highest in the Northwest.'],
+  ['57.4%', 'NDC vote intent nationally', 'APC 11.3%, ADC 10.3%, undecided 11.3%.'],
+  ['31.7% → 64.9%', 'NDC share, low vs high turnout', 'SBM concludes the NDC’s lead depends on turnout in the Southeast, South-South and Northcentral.'],
+  ['+28.9 vs +15.1', 'Obi vs Tinubu net favourability in the Southwest', 'Obi leads in every zone except the Northeast.'],
+  ['23%', 'undecided in the Southwest', 'Also the lowest high-turnout intention of any zone (44%). NDC 45%, APC 22%.'],
+  ['Northeast', 'the only zone where the NDC trails', 'ADC 23.1%, APC 17.3%, NDC 13.5%, with about 16% undecided.'],
+  ['45%', 'name insecurity or terrorism as their top concern', 'Economy and insecurity together 34%, economy alone 13%, corruption 5%, jobs 2%.'],
+  ['64.9%', 'alarmed about AI-generated misinformation', 'The Southeast relies most on social media for news (79%) and has the most people who never verify information (43%).'],
+];
+
 // Tinubu monthly approve + strongly approve (%), NOIPolls. Index 0 = Jun 2023. Months the chart left unlabelled (Oct 2023, Sep 2024, Dec 2025, Apr 2026) are skipped.
-const TINUBU_NOI: [number, number][] = [[0, 43], [1, 24], [2, 23], [3, 27], [5, 32], [6, 30], [7, 35], [8, 11], [9, 25], [10, 28], [11, 24], [12, 17], [13, 19], [14, 18], [16, 16], [17, 17], [18, 22], [19, 36], [20, 41], [21, 40], [22, 36], [23, 38], [24, 36], [25, 44], [26, 46], [27, 51], [28, 46], [29, 41], [31, 53], [32, 49], [33, 45], [35, 36], [36, 36], [37, 54], [38, 49], [39, 41]];
-const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const monLabel = (i: number) => `${MON[(5 + i) % 12]} ${2023 + Math.floor((5 + i) / 12)}`;
-const approvalTrend = (): string => {
-  const W = 480, H = 220, L = 32, R = 12, T = 14, B = 28, N = 39, MAX = 60, AVG = 34.1;
-  const x = (i: number) => L + i / N * (W - L - R), y = (v: number) => T + (1 - v / MAX) * (H - T - B);
-  const pts = TINUBU_NOI.map(([i, v]) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`), line = 'M' + pts.join('L');
-  const area = `${line}L${x(N).toFixed(1)},${y(0)}L${x(0).toFixed(1)},${y(0)}Z`;
-  const grid = [0, 20, 40, 60].map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--g100)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" class="ar-t">${v}%</text>`).join('');
-  const ticks = [[0, 'Jun 2023'], [7, '2024'], [19, '2025'], [31, '2026']].map(([i, t]) => `<text x="${x(+i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : 'middle'}" class="ar-t">${t}</text>`).join('');
-  const hit = TINUBU_NOI.map(([i, v]) => `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="7" fill="transparent"><title>${monLabel(i)}: ${v}%</title></circle>`).join('');
-  const last = TINUBU_NOI[TINUBU_NOI.length - 1];
-  return `<div class="ar-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tinubu monthly approval rating, June 2023 to September 2026">
-    ${grid}<line x1="${L}" x2="${W - R}" y1="${y(AVG)}" y2="${y(AVG)}" stroke="var(--g400)" stroke-dasharray="4 4"/>
-    <path d="${area}" class="ar-ar"/><path d="${line}" class="ar-ln" pathLength="1"/>
-    <circle cx="${x(last[0])}" cy="${y(last[1])}" r="4" fill="var(--blu500)" stroke="var(--white,#fff)" stroke-width="2"/>
-    <text x="${x(37)}" y="${y(54) - 9}" text-anchor="middle" class="ar-a">54%</text>
-    <text x="${x(8)}" y="${y(11) + 17}" text-anchor="middle" class="ar-a">11%</text>
-    <text x="${x(39)}" y="${y(41) + 17}" text-anchor="end" class="ar-a">41%</text>
-    ${ticks}${hit}</svg>
-    <p class="xs sub ar-lg"><i class="ar-k"></i>Approve / strongly approve <i class="ar-k d"></i>Average 34.1%</p></div>`;
-};
+// const TINUBU_NOI: [number, number][] = [[0, 43], [1, 24], [2, 23], [3, 27], [5, 32], [6, 30], [7, 35], [8, 11], [9, 25], [10, 28], [11, 24], [12, 17], [13, 19], [14, 18], [16, 16], [17, 17], [18, 22], [19, 36], [20, 41], [21, 40], [22, 36], [23, 38], [24, 36], [25, 44], [26, 46], [27, 51], [28, 46], [29, 41], [31, 53], [32, 49], [33, 45], [35, 36], [36, 36], [37, 54], [38, 49], [39, 41]];
+// const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// const monLabel = (i: number) => `${MON[(5 + i) % 12]} ${2023 + Math.floor((5 + i) / 12)}`;
+// const approvalTrend = (): string => {
+//   const W = 480, H = 220, L = 32, R = 12, T = 14, B = 28, N = 39, MAX = 60, AVG = 34.1;
+//   const x = (i: number) => L + i / N * (W - L - R), y = (v: number) => T + (1 - v / MAX) * (H - T - B);
+//   const pts = TINUBU_NOI.map(([i, v]) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`), line = 'M' + pts.join('L');
+//   const area = `${line}L${x(N).toFixed(1)},${y(0)}L${x(0).toFixed(1)},${y(0)}Z`;
+//   const grid = [0, 20, 40, 60].map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--g100)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" class="ar-t">${v}%</text>`).join('');
+//   const ticks = [[0, 'Jun 2023'], [7, '2024'], [19, '2025'], [31, '2026']].map(([i, t]) => `<text x="${x(+i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : 'middle'}" class="ar-t">${t}</text>`).join('');
+//   const hit = TINUBU_NOI.map(([i, v]) => `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="7" fill="transparent"><title>${monLabel(i)}: ${v}%</title></circle>`).join('');
+//   const last = TINUBU_NOI[TINUBU_NOI.length - 1];
+//   return `<div class="ar-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tinubu monthly approval rating, June 2023 to September 2026">
+//     ${grid}<line x1="${L}" x2="${W - R}" y1="${y(AVG)}" y2="${y(AVG)}" stroke="var(--g400)" stroke-dasharray="4 4"/>
+//     <path d="${area}" class="ar-ar"/><path d="${line}" class="ar-ln" pathLength="1"/>
+//     <circle cx="${x(last[0])}" cy="${y(last[1])}" r="4" fill="var(--blu500)" stroke="var(--white,#fff)" stroke-width="2"/>
+//     <text x="${x(37)}" y="${y(54) - 9}" text-anchor="middle" class="ar-a">54%</text>
+//     <text x="${x(8)}" y="${y(11) + 17}" text-anchor="middle" class="ar-a">11%</text>
+//     <text x="${x(39)}" y="${y(41) + 17}" text-anchor="end" class="ar-a">41%</text>
+//     ${ticks}${hit}</svg>
+//     <p class="xs sub ar-lg"><i class="ar-k"></i>Approve / strongly approve <i class="ar-k d"></i>Average 34.1%</p></div>`;
+// };
 
 function main(): void {
   /* ---------- parties & candidates differ per election ---------- */
@@ -397,10 +418,9 @@ function main(): void {
     const nat = votes('nat'), t = sum(nat) || 1, L = hasLga(), wins = L ? LG_WINS_2023 : stateWins(), wt = sum(wins) || 1, reg = REG[S.y], vot = CAST[S.y], tn = +turnout(S.y).toFixed(2);
     const ext = S.y === '2023' ? [['Most voter turnout', 'Jigawa State', 40.61, 'red'], ['Least voter turnout', 'Rivers State', 15.66, 'blu']] : [];
     const newsCard = `<div class="card" style="flex-basis:100%;"><div class="row" style="justify-content:space-between;margin-bottom:12px;"><p class="card-t">2027 Election Updates</p><a href="https://onyeakuko.online" target="_blank" rel="noopener noreferrer" class="xs sub" style="text-decoration:none;display:flex;align-items:center;gap:4px;">Powered by OnyeAkụkọ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a></div><div id="news-feed" style="display:flex;flex-direction:column;gap:0;"><p class="sm sub" style="padding:12px 0;">Fetching latest reports...</p></div></div>`;
-    const approvalCard = `<div class="card" style="flex-basis:100%;"><p class="card-t">Presidential Approval Ratings</p>${APPROVAL.map(p => `<div class="ar-h"><p class="md">${p.n}</p><p class="xs sub">${p.term}</p></div>${p.n === 'Bola Tinubu' ? approvalTrend() : ''}${p.rows.map(r => `<div class="ar-r"><div class="fl"><p class="sm">${r[0]}</p><p class="xs sub">${r[1]}</p></div><div class="ar-b"><i style="width:${r[2]}%;background:${p.c}"></i></div><div class="ar-v"><p class="md">${r[2]}%</p>${r[3] != null ? `<p class="xs sub">${r[3]}% disapprove</p>` : ''}</div></div>`).join('')}`).join('')}<div class="note sm">${layers}<p>All figures are from NOIPolls. Survey dates, methods and sample sizes vary across the series, so treat the numbers as rough direction. No approval figures found for Buhari after 2017. Source: noi-polls.com.</p></div></div>`;
     return `<div class="page"><div class="cols pad" style="padding-left:20px;padding-right:20px;grid-template-columns:repeat(${nat.length},1fr)">${nat.map((v, i) => { const p = v / t * 100; return `<div class="col"><div><div class="hd2"><p class="mdb">${P[i].k}</p><p class="sm sub">${mob.matches ? +(v / 1e6).toFixed(2) + 'M' : fmt(v)}</p></div><p class="pc" data-n="${p}" data-d="1" data-s="%">0%</p>${i < 3 && P[i].wiki ? `<p class="xs sub" style="margin-bottom:6px;padding-left:12px;">${P[i].w}</p>` : ''}<div class="grow" data-h="${(p * 6.28).toFixed(1)}px" style="height:0;background:${col(i)}"></div></div></div>` }).join('')}</div>
       <div class="cards"><div class="card"><p class="card-t">${L ? 'Party by Local Government' : 'Party by State'}</p><div><p class="h5" data-n="${wt}" data-c="1">0</p><p class="sm sub">${L ? 'Local Government Areas' : 'States (incl. FCT)'}</p></div><div class="stk" style="margin:8px 0">${wins.map((n, i) => `<div class="grow" data-w="${n / wt * 100}%" style="width:0;background:${col(i)}"></div>`).join('')}</div>${wins.map((n, i) => `<div class="cl" style="--c:${col(i)}"><div class="fl"><p class="md">${P[i].k}</p><p class="xs sub">${P[i].n}</p></div><p class="md" data-n="${n}" data-c="1">0</p></div>`).join('')}</div>
-      <div class="card"><p class="card-t">Voting Turnout</p><div class="row" style="gap:12px;flex-wrap:wrap"><div class="stat" style="--c:var(--g100)"><div><p class="h5" data-n="${reg}" data-c="1">0</p><p class="sm sub">registered voters</p></div></div><div class="stat" style="--c:var(--org500)"><div><p class="h5" data-n="${vot}" data-c="1">0</p><p class="sm sub">voted</p></div></div></div><div class="trk">${[0, 25, 50, 75, 100].map(x => `<i style="left:${x === 100 ? 'calc(100% - 1px)' : x + '%'}"></i>`).join('')}<div class="fill"><b class="grow" style="width:0" data-w="${tn}%"></b></div></div>${ext.map(r => `<div class="cl b0" style="--c:var(--${r[3]}500);padding:4px 0"><div class="fl"><p class="xs sub">${r[0]}</p><p class="md">${r[1]}</p></div><p class="md">${r[2]}%</p></div>`).join('')}<div class="note sm">${layers}<p>${tn}% of registered voters cast a ballot in the ${S.y} General Elections${ext.length ? `, with ${ext[0][1]} having the most turnout and ${ext[1][1]} the least` : ''}.</p></div></div>${approvalCard}${newsCard}</div></div>`;
+      <div class="card"><p class="card-t">Voting Turnout</p><div class="row" style="gap:12px;flex-wrap:wrap"><div class="stat" style="--c:var(--g100)"><div><p class="h5" data-n="${reg}" data-c="1">0</p><p class="sm sub">registered voters</p></div></div><div class="stat" style="--c:var(--org500)"><div><p class="h5" data-n="${vot}" data-c="1">0</p><p class="sm sub">voted</p></div></div></div><div class="trk">${[0, 25, 50, 75, 100].map(x => `<i style="left:${x === 100 ? 'calc(100% - 1px)' : x + '%'}"></i>`).join('')}<div class="fill"><b class="grow" style="width:0" data-w="${tn}%"></b></div></div>${ext.map(r => `<div class="cl b0" style="--c:var(--${r[3]}500);padding:4px 0"><div class="fl"><p class="xs sub">${r[0]}</p><p class="md">${r[1]}</p></div><p class="md">${r[2]}%</p></div>`).join('')}<div class="note sm">${layers}<p>${tn}% of registered voters cast a ballot in the ${S.y} General Elections${ext.length ? `, with ${ext[0][1]} having the most turnout and ${ext[1][1]} the least` : ''}.</p></div></div>${newsCard}</div></div>`;
   };
   const ph = (t: string, r = '') => `<div class="ph"><h1 class="ttl">${t}</h1>${r}</div>`;
   V.compare = () => {
@@ -427,11 +447,20 @@ function main(): void {
     const dot = (k: string) => `<i class="dot" style="background:${(PTY[k] || PTY.OTH).fill}"></i>`;
     const frow = (f: any, i: number) => `<div class="flr${i > 4 ? ' more-r' : ''}"><span class="md">${f.n}</span><span class="flp">${dot(f.from)}${f.from}${ic('arrow', 16)}${dot(f.to)}${f.to}</span></div>`;
     const tn = +turnout(y).toFixed(2), projReg = Math.round(REG['2023'] * 1.135);
-    return `<div class="page"><div class="cards" style="padding-bottom:0"><div class="card" style="grid-column:1/-1"><p class="card-t">2027 Structural Projections</p><div class="row ps"><div class="stat" style="--c:var(--blu500)"><div><p class="h5">${fmt(projReg)}</p><p class="sm sub">est. registered voters</p></div></div><div class="stat" style="--c:var(--org500)"><div><p class="h5">26% - 30%</p><p class="sm sub">est. turnout baseline</p></div></div><div class="stat" style="--c:var(--pur500)"><div><p class="h5">${watch.length}</p><p class="sm sub">Key states to watch</p></div></div></div>${note(`Key states to watch (tightest ${y} margins): ${watch.join(', ')}. Registered voters extrapolate the ~13.5% growth between the 2019 and 2023 registers.`)}</div></div>
-      ${ph(y + ' Insights')}
-      <div class="cards"><div class="card"><p class="card-t">Closest ${what} contests</p>${rows.slice(0, 5).map(irow).join('') || '<p class="xs sub">No data</p>'}</div><div class="card"><p class="card-t">Widest ${what} contests</p>${rows.slice(-5).reverse().map(irow).join('') || '<p class="xs sub">No data</p>'}</div></div>
-      <div class="cards" style="padding-top:0"><div class="card"><p class="card-t">Voter Apathy Index</p><div class="apx"><div class="ap ap-reg"><span>Registered voters</span><b>100%</b></div>${y === '2023' ? `<div class="ap ap-pvc" style="width:${PVC_2023}%"><span>PVC collection</span><b>${PVC_2023}%</b></div>` : ''}<div class="ap ap-vot" style="width:${tn}%;top:${y === '2023' ? 196 : 68}px"><span>Voter turnout</span><b class="big">${tn}%</b></div></div><p class="t20" style="margin-top:12px">National turnout was ${y === '2023' ? 'historically low at just ' : ''}${tn}%</p></div>
-        <div class="card" id="flc"><p class="card-t">${prev ? `States that flipped from ${prev} - ${y}` : 'States that flipped'}</p>${prev ? (flips.length ? flips.map(frow).join('') + (flips.length > 5 ? `<button class="more sm" id="flb">View all ${ic('down')}</button>` : '') : '<p class="xs sub" style="padding:12px 0">No state changed hands.</p>') : '<p class="xs sub" style="padding:12px 0">2015 is the earliest election on nivo, so there is nothing to compare it with.</p>'}</div></div></div>`;
+    const sgn = (v: number) => (v > 0 ? '+' : '−') + Math.abs(v).toFixed(1);
+    const approvalCard = `<div class="card" style="grid-column:1/-1"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><p class="card-t">Presidential Candidates’ Approval Ratings</p><a href="${SBM_URL}" target="_blank" rel="noopener noreferrer" class="xs sub" style="text-decoration:none">SBM Intelligence · Voter Sentiment Tracker, Wave 1 ↗</a></div>
+  <p class="sm sub" style="margin-top:4px">Net favourability: % favourable minus % unfavourable, from −100 to +100.</p>
+  <div style="margin-top:8px">${CAND_NET.map(c => `<div class="nf-r"><div class="fl"><p class="md ell">${c.n}</p><p class="xs sub">${c.p}</p></div><div class="nf-b"><i class="${c.v > 0 ? 'pos' : 'neg'}" data-w="${Math.abs(c.v) / 2}%" style="width:0"></i></div><p class="nf-v ${c.v > 0 ? 'pos' : 'neg'}">${sgn(c.v)}</p></div>`).join('')}</div>
+  <p class="md" style="margin-top:20px">Key insights from the report</p>
+  <div class="ki-g">${KEY_INSIGHTS.map(k => `<div class="ki"><b>${k[0]}</b><p class="sm">${k[1]}</p><p class="xs sub">${k[2]}</p></div>`).join('')}</div>
+  ${note('Based on 829 voters in eight states (Anambra, Bauchi, Cross River, Kano, Lagos, Oyo, Rivers and the FCT), interviewed face-to-face in markets, viewing centres, schools and hotels in the third week of May 2026. The sample is unweighted and not nationally representative, so read it as a snapshot of the people surveyed. Candidate scores are net favourability, not job approval.')}</div>`;
+
+    return `<div class="page">${ph(y + ' Insights')}
+  <div class="cards ins"><div class="card" style="grid-column:1/-1"><p class="card-t">2027 Structural Projections</p><div class="row ps"><div class="stat" style="--c:var(--blu500)"><div><p class="h5">${fmt(projReg)}</p><p class="sm sub">est. registered voters</p></div></div><div class="stat" style="--c:var(--org500)"><div><p class="h5">26% - 30%</p><p class="sm sub">est. turnout baseline</p></div></div><div class="stat" style="--c:var(--pur500)"><div><p class="h5">${watch.length}</p><p class="sm sub">Key states to watch</p></div></div></div>${note(`Key states to watch (tightest ${y} margins): ${watch.join(', ')}. Registered voters extrapolate the ~13.5% growth between the 2019 and 2023 registers.`)}</div></div>
+  <div class="cards ins">${approvalCard}</div>
+  <div class="cards ins"><div class="card"><p class="card-t">Closest ${what} contests</p>${rows.slice(0, 5).map(irow).join('') || '<p class="xs sub">No data</p>'}</div><div class="card"><p class="card-t">Widest ${what} contests</p>${rows.slice(-5).reverse().map(irow).join('') || '<p class="xs sub">No data</p>'}</div></div>
+  <div class="cards ins"><div class="card"><p class="card-t">Voter Apathy Index</p><div class="apx"><div class="ap ap-reg"><span>Registered voters</span><b>100%</b></div>${y === '2023' ? `<div class="ap ap-pvc" style="width:${PVC_2023}%"><span>PVC collection</span><b>${PVC_2023}%</b></div>` : ''}<div class="ap ap-vot" style="width:${tn}%;top:${y === '2023' ? 196 : 68}px"><span>Voter turnout</span><b class="big">${tn}%</b></div></div><p class="t20" style="margin-top:12px">National turnout was ${y === '2023' ? 'historically low at just ' : ''}${tn}%</p></div>
+  <div class="card" id="flc"><p class="card-t">${prev ? `States that flipped from ${prev} - ${y}` : 'States that flipped'}</p>${prev ? (flips.length ? flips.map(frow).join('') + (flips.length > 5 ? `<button class="more sm" id="flb">View all ${ic('down')}</button>` : '') : '<p class="xs sub" style="padding:12px 0">No state changed hands.</p>') : '<p class="xs sub" style="padding:12px 0">2015 is the earliest election on nivo, so there is nothing to compare it with.</p>'}</div></div></div>`;
   };
   V.method = () => {
     const y = S.y, sec = (h: string, b: string) => `<section><h2 class="t18" style="margin-bottom:8px">${h}</h2>${b}</section>`, p = (t: string, st = '') => `<p class="r14 sub" style="${st}">${t}</p>`;
