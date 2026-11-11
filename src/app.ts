@@ -112,9 +112,9 @@ const APPROVAL: { n: string; term: string; c: string; rows: [string, string, num
 const SBM_URL = 'https://www.sbmintel.com/wp-content/uploads/2026/06/202606_VST-W1.pdf';
 const CAND_NET: { n: string; p: string; v: number }[] = [
   { n: 'Peter Obi', p: 'NDC', v: 58.3 },
-  { n: 'Rabiu Kwankwaso', p: 'NDC', v: -21.6 },
+  // { n: 'Rabiu Kwankwaso', p: 'NDC', v: -21.6 },
   { n: 'Atiku Abubakar', p: 'ADC', v: -31.8 },
-  { n: 'Rotimi Amaechi', p: 'ADC', v: -46.7 },
+  // { n: 'Rotimi Amaechi', p: 'ADC', v: -46.7 },
   { n: 'Bola Tinubu', p: 'APC', v: -58.5 },
 ];
 const KEY_INSIGHTS: [string, string, string][] = [
@@ -448,14 +448,13 @@ function main(): void {
     const frow = (f: any, i: number) => `<div class="flr${i > 4 ? ' more-r' : ''}"><span class="md">${f.n}</span><span class="flp">${dot(f.from)}${f.from}${ic('arrow', 16)}${dot(f.to)}${f.to}</span></div>`;
     const tn = +turnout(y).toFixed(2), projReg = Math.round(REG['2023'] * 1.135);
     const sgn = (v: number) => (v > 0 ? '+' : '−') + Math.abs(v).toFixed(1);
-    const approvalCard = `<div class="card" style="grid-column:1/-1"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><p class="card-t">Presidential Candidates’ Approval Ratings</p><a href="${SBM_URL}" target="_blank" rel="noopener noreferrer" class="xs sub" style="text-decoration:none">SBM Intelligence · Voter Sentiment Tracker, Wave 1 ↗</a></div>
-  <p class="sm sub" style="margin-top:4px">Net favourability: % favourable minus % unfavourable, from −100 to +100.</p>
+    const approvalCard = `<div class="card" style="grid-column:1/-1"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><p class="card-t">Presidential Candidates’ Approval Ratings</p><a href="${SBM_URL}" target="_blank" rel="noopener noreferrer" class="xs sub" style="text-decoration:none">SBM Intelligence · Voter Sentiment Tracker Report ↗</a></div>
   <div style="margin-top:8px">${CAND_NET.map(c => `<div class="nf-r"><div class="fl"><p class="md ell">${c.n}</p><p class="xs sub">${c.p}</p></div><div class="nf-b"><i class="${c.v > 0 ? 'pos' : 'neg'}" data-w="${Math.abs(c.v) / 2}%" style="width:0"></i></div><p class="nf-v ${c.v > 0 ? 'pos' : 'neg'}">${sgn(c.v)}</p></div>`).join('')}</div>
   <p class="md" style="margin-top:20px">Key insights from the report</p>
   <div class="ki-g">${KEY_INSIGHTS.map(k => `<div class="ki"><b>${k[0]}</b><p class="sm">${k[1]}</p><p class="xs sub">${k[2]}</p></div>`).join('')}</div>
   ${note('Based on 829 voters in eight states (Anambra, Bauchi, Cross River, Kano, Lagos, Oyo, Rivers and the FCT), interviewed face-to-face in markets, viewing centres, schools and hotels in the third week of May 2026. The sample is unweighted and not nationally representative, so read it as a snapshot of the people surveyed. Candidate scores are net favourability, not job approval.')}</div>`;
 
-    return `<div class="page">${ph(y + ' Insights')}
+    return `<div class="page">${ph(y + ' Insights & Projections')}
   <div class="cards ins"><div class="card" style="grid-column:1/-1"><p class="card-t">2027 Structural Projections</p><div class="row ps"><div class="stat" style="--c:var(--blu500)"><div><p class="h5">${fmt(projReg)}</p><p class="sm sub">est. registered voters</p></div></div><div class="stat" style="--c:var(--org500)"><div><p class="h5">26% - 30%</p><p class="sm sub">est. turnout baseline</p></div></div><div class="stat" style="--c:var(--pur500)"><div><p class="h5">${watch.length}</p><p class="sm sub">Key states to watch</p></div></div></div>${note(`Key states to watch (tightest ${y} margins): ${watch.join(', ')}. Registered voters extrapolate the ~13.5% growth between the 2019 and 2023 registers.`)}</div></div>
   <div class="cards ins">${approvalCard}</div>
   <div class="cards ins"><div class="card"><p class="card-t">Closest ${what} contests</p>${rows.slice(0, 5).map(irow).join('') || '<p class="xs sub">No data</p>'}</div><div class="card"><p class="card-t">Widest ${what} contests</p>${rows.slice(-5).reverse().map(irow).join('') || '<p class="xs sub">No data</p>'}</div></div>
