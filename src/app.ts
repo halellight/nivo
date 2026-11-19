@@ -252,18 +252,74 @@ function main(): void {
     inp.onblur = () => { close(); inp.value = label };
   }
 
+  interface OANewsArticle {
+    title: string;
+    description?: string;
+    source?: string;
+    date?: string;
+    link: string;
+    imageUrl?: string;
+    coverageCount?: number;
+  }
+
+  let newsCache: { timestamp: number; articles: OANewsArticle[] } | null = null;
+
   async function loadElectionNews() {
-    const feed = $('#news-feed'); if (!feed) return;
+    const feed = $('#news-feed');
+    if (!feed) return;
+
+    const now = Date.now();
+    if (newsCache && now - newsCache.timestamp < 5 * 60 * 1000) {
+      renderNews(newsCache.articles, feed);
+      return;
+    }
+
     try {
-      const rssUrl = encodeURIComponent('https://onyeakuko.online/');
-      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
-      if (!res.ok) throw new Error('API unreachable');
-      const data = await res.json(); if (data.status !== 'ok') throw new Error('Feed failed');
-      const kw = ['election', '2027', 'inec', 'obi', 'tinubu', 'atiku', 'adc', 'apc', 'campaign', 'poll', 'ballot', 'candidate'];
-      const items = (data.items || []).filter((a: any) => { const t = (a.title + ' ' + (a.description || '')).toLowerCase(); return kw.some(k => t.includes(k)) }).slice(0, 5);
-      if (!items.length) { feed.innerHTML = `<p class="sm sub" style="padding:12px 0;">No new election updates at the moment.</p>`; return }
-      feed.innerHTML = items.map((n: any) => `<a href="${n.link}" target="_blank" rel="noopener noreferrer" class="cl" style="--c:var(--blu500);text-decoration:none;align-items:flex-start;cursor:pointer;"><div class="fl"><p class="md" style="color:var(--g900);margin-bottom:4px;">${n.title}</p><p class="xs sub">${new Date(n.pubDate).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })} · OnyeAkụkọ</p></div></a>`).join('');
-    } catch { feed.innerHTML = `<div class="note sm" style="margin-top:12px;">${layers}<p>Could not load live news. <a href="https://onyeakuko.online" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Check OnyeAkụkọ directly</a>.</p></div>` }
+      const res = await fetch("https://onyeakuko.online/api/news?topic=election&limit=5", {
+        headers: { "Accept": "application/json" }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      // Normalize in case response is direct array or wrapped in data/articles
+      const articles: OANewsArticle[] = Array.isArray(data)
+        ? data
+        : (data?.articles || data?.data || []);
+
+      if (!articles.length) {
+        feed.innerHTML = `<p class="sm sub" style="padding:12px 0;">No new election updates at the moment.</p>`;
+        return;
+      }
+
+      newsCache = { timestamp: now, articles };
+      renderNews(articles, feed);
+    } catch (error) {
+      console.warn("[nivo] Failed to load OA news:", error);
+      feed.innerHTML = `<div class="note sm" style="margin-top:12px;">${layers}<p>Could not load live news. <a href="https://onyeakuko.online" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">Check OnyeAkụkọ directly</a>.</p></div>`;
+    }
+  }
+
+  function renderNews(articles: OANewsArticle[], container: HTMLElement) {
+    container.innerHTML = articles.map(n => {
+      const src = esc(n.source || 'OnyeAkụkọ');
+      const d = n.date ? new Date(n.date).toLocaleDateString('en-NG', { month: 'short', day: 'numeric' }) : '';
+      const cov = (n.coverageCount && n.coverageCount > 1)
+        ? ` · <span style="background:var(--g100);color:var(--g700);padding:1px 6px;border-radius:4px;">${n.coverageCount} outlets</span>`
+        : '';
+      const thumb = n.imageUrl
+        ? `<img src="${esc(n.imageUrl)}" alt="" loading="lazy" style="width:64px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;">`
+        : '';
+
+      return `
+      <a href="${esc(n.link)}" target="_blank" rel="noopener noreferrer" class="cl" style="--c:var(--blu500);text-decoration:none;gap:12px;align-items:center;cursor:pointer;">
+        <div class="fl" style="flex:1;min-width:0;">
+          <p class="md" style="color:var(--g900);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${esc(n.title)}</p>
+          <p class="xs sub">${src}${d ? ' · ' + d : ''}${cov}</p>
+        </div>
+        ${thumb}
+      </a>
+    `;
+    }).join('');
   }
 
   /* ---------- candidate photos (Wikipedia thumbnail, cached, falls back to initials) ---------- */
