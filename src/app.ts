@@ -252,6 +252,8 @@ function main(): void {
     inp.onblur = () => { close(); inp.value = label };
   }
 
+  const OA_FALLBACK_IMG = 'https://www.onyeakuko.online/Group728.png';
+
   interface OANewsArticle {
     title: string;
     description?: string;
@@ -275,16 +277,18 @@ function main(): void {
     }
 
     try {
-      const res = await fetch("https://onyeakuko.online/api/news?topic=election&limit=5", {
+      const res = await fetch("https://onyeakuko.online/api/news?topic=election&limit=3", {
         headers: { "Accept": "application/json" }
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
       // Normalize in case response is direct array or wrapped in data/articles
-      const articles: OANewsArticle[] = Array.isArray(data)
+      const rawList: OANewsArticle[] = Array.isArray(data)
         ? data
         : (data?.articles || data?.data || []);
+
+      const articles = rawList.slice(0, 3);
 
       if (!articles.length) {
         feed.innerHTML = `<p class="sm sub" style="padding:12px 0;">No new election updates at the moment.</p>`;
@@ -306,9 +310,8 @@ function main(): void {
       const cov = (n.coverageCount && n.coverageCount > 1)
         ? ` · <span style="background:var(--g100);color:var(--g700);padding:1px 6px;border-radius:4px;">${n.coverageCount} outlets</span>`
         : '';
-      const thumb = n.imageUrl
-        ? `<img src="${esc(n.imageUrl)}" alt="" loading="lazy" style="width:64px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;">`
-        : '';
+      const imgUrl = esc(n.imageUrl || OA_FALLBACK_IMG);
+      const thumb = `<img src="${imgUrl}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${OA_FALLBACK_IMG}'" style="width:64px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;background:var(--g100);">`;
 
       return `
       <a href="${esc(n.link)}" target="_blank" rel="noopener noreferrer" class="cl" style="--c:var(--blu500);text-decoration:none;gap:12px;align-items:center;cursor:pointer;">
